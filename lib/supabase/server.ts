@@ -2,15 +2,12 @@ import { createServerClient } from "@supabase/ssr";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
+// Hardcoded public values (safe - these are NEXT_PUBLIC_ vars, not secrets)
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://gmuqgzhlnvrhbyjaajlu.supabase.co";
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdtdXFnemhsbnZyaGJ5amFhamx1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg1MjUyMjYsImV4cCI6MjEwNDEwMTIyNn0.mkY9iWbJGOAbxEtMLrbJ8u-PbXzQJ4KzPf4GqqPBSP8";
+
 export function createPublicClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
-  if (!supabaseUrl || !supabaseKey) {
-    return null;
-  }
-
-  return createSupabaseClient(supabaseUrl, supabaseKey, {
+  return createSupabaseClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     auth: {
       persistSession: false,
     },
@@ -20,14 +17,7 @@ export function createPublicClient() {
 export async function createClient() {
   const cookieStore = await cookies();
 
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-
-  if (!supabaseUrl || !supabaseKey) {
-    return null;
-  }
-
-  return createServerClient(supabaseUrl, supabaseKey, {
+  return createServerClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
     cookies: {
       getAll() {
         return cookieStore.getAll();
@@ -45,4 +35,3 @@ export async function createClient() {
     },
   });
 }
-
