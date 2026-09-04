@@ -178,13 +178,14 @@ export default async function AdminDashboardPage() {
                       {item.click_count} clicks
                     </td>
                     <td className="py-3 px-3 text-right">
-                      <Link
-                        href={`/go/${products.find((p) => p.id === item.product_id)?.slug || ""}`}
+                      <a
+                        href={products.find((p) => p.id === item.product_id)?.affiliate_url || "#"}
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="text-xs text-[#53683A] hover:underline"
                       >
                         Thử link
-                      </Link>
+                      </a>
                     </td>
                   </tr>
                 ))}

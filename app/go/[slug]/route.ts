@@ -19,19 +19,32 @@ export async function GET(
     return NextResponse.redirect(new URL("/", request.url));
   }
 
-  // Tracking click
-  const userAgent = request.headers.get("user-agent") || "";
-  const referrer = request.headers.get("referer") || "";
-  const device = detectDevice(userAgent);
+  // Check if this is a prefetch request from Next.js or browser
+  const isPrefetch =
+    request.headers.get("purpose") === "prefetch" ||
+    request.headers.get("x-purpose") === "prefetch" ||
+    request.headers.get("sec-purpose") === "prefetch" ||
+    request.headers.has("next-router-prefetch") ||
+    request.headers.has("next-router-state-tree");
 
-  try {
-    await recordAffiliateClick(product.id, {
-      referrer,
-      userAgent,
-      device,
-    });
-  } catch (err) {
-    console.error("Failed to record affiliate click:", err);
+  // Check if this is an admin session (admin testing links shouldn't count as customer clicks)
+  const isAdmin = !!request.cookies.get("admin_session")?.value;
+
+  // Only track legitimate user clicks
+  if (!isPrefetch && !isAdmin && request.method === "GET") {
+    const userAgent = request.headers.get("user-agent") || "";
+    const referrer = request.headers.get("referer") || "";
+    const device = detectDevice(userAgent);
+
+    try {
+      await recordAffiliateClick(product.id, {
+        referrer,
+        userAgent,
+        device,
+      });
+    } catch (err) {
+      console.error("Failed to record affiliate click:", err);
+    }
   }
 
   // Validate URL to prevent open redirect vulnerabilities

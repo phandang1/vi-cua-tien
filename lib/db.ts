@@ -303,18 +303,11 @@ export async function getAnalyticsSummary(): Promise<ClickAnalyticsSummary> {
     productCounts[c.product_id] = (productCounts[c.product_id] || 0) + 1;
   });
 
-  const topProducts = fallbackProducts.map((p) => ({
-    product_id: p.id,
-    title: p.title,
-    thumbnail_url: p.thumbnail_url,
-    click_count: productCounts[p.id] || (p.is_featured ? Math.floor(Math.random() * 12) + 5 : 2),
-  })).sort((a, b) => b.click_count - a.click_count);
-
   return {
-    totalClicksToday: todayCount > 0 ? todayCount : 18,
-    totalClicks7Days: sevenDaysCount > 0 ? sevenDaysCount : 124,
-    totalClicks30Days: thirtyDaysCount > 0 ? thirtyDaysCount : 542,
-    topProducts,
+    totalClicksToday: todayCount || 0,
+    totalClicks7Days: sevenDaysCount || 0,
+    totalClicks30Days: thirtyDaysCount || 0,
+    topProducts: [],
     topCategories: [],
   };
 }

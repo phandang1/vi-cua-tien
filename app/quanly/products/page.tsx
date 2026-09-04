@@ -429,15 +429,16 @@ export default function AdminProductsPage() {
                             <Edit2 className="w-4 h-4" />
                           </button>
 
-                          {/* Nút Test link /go/[slug] */}
-                          <Link
-                            href={`/go/${p.slug}`}
+                          {/* Nút Test link */}
+                          <a
+                            href={p.affiliate_url}
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
-                            title="Mở link affiliate /go/[slug]"
+                            title="Mở link affiliate Shopee"
                           >
                             <ExternalLink className="w-4 h-4" />
-                          </Link>
+                          </a>
 
                           {/* Nút Xóa */}
                           <button

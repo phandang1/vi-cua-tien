@@ -10,7 +10,11 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const handleShopeeClick = () => {
     // Fire background click tracking without blocking navigation
-    fetch(`/go/${product.slug}`, { method: "HEAD" }).catch(() => {});
+    fetch(`/api/track-click`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ product_id: product.id }),
+    }).catch(() => {});
   };
 
   return (
