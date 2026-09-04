@@ -1,8 +1,8 @@
 import { getCategories, getProducts, getSiteSettings } from "@/lib/db";
 import StorefrontClient from "@/components/StorefrontClient";
 
-// Revalidate every 60 seconds (ISR) or on demand
-export const revalidate = 60;
+// Disable static caching so modifications in /quanly appear immediately
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const [categories, products, settings] = await Promise.all([

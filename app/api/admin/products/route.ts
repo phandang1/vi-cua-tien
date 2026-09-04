@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { saveProduct, deleteProduct, getProducts } from "@/lib/db";
 import { slugify } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   try {
     const products = await getProducts({ includeInactive: true });

@@ -38,8 +38,8 @@ export default function AdminProductsPage() {
     setIsLoading(true);
     try {
       const [prodRes, catRes] = await Promise.all([
-        fetch("/api/admin/products"),
-        fetch("/api/admin/categories"),
+        fetch("/api/admin/products", { cache: "no-store" }),
+        fetch("/api/admin/categories", { cache: "no-store" }),
       ]);
       const prodJson = await prodRes.json();
       const catJson = await catRes.json();
