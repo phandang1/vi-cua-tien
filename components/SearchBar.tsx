@@ -8,6 +8,7 @@ import { Product } from "@/types/database";
 interface SearchBarProps {
   initialValue?: string;
   products?: Product[];
+  popularKeywords?: string | null;
   onSearch: (keyword: string) => void;
   onSelectProduct?: (product: Product) => void;
 }
@@ -15,6 +16,7 @@ interface SearchBarProps {
 export default function SearchBar({
   initialValue = "",
   products = [],
+  popularKeywords: popularKeywordsProp,
   onSearch,
   onSelectProduct,
 }: SearchBarProps) {
@@ -29,15 +31,20 @@ export default function SearchBar({
         .slice(0, 5)
     : [];
 
-  // Popular search keywords suggestions
-  const popularKeywords = [
-    "Hạt dinh dưỡng",
-    "Trà gạo lứt",
-    "Trà hoa cúc",
-    "Tương ớt",
-    "Xoài sấy",
-    "Granola",
-  ];
+  // Popular search keywords suggestions - dynamic from settings or default fallback
+  const popularKeywords = popularKeywordsProp
+    ? popularKeywordsProp
+        .split(",")
+        .map((k) => k.trim())
+        .filter(Boolean)
+    : [
+        "Hạt dinh dưỡng",
+        "Trà gạo lứt",
+        "Trà hoa cúc",
+        "Tương ớt",
+        "Xoài sấy",
+        "Granola",
+      ];
 
   // Handle clicking outside to close suggestions dropdown
   useEffect(() => {

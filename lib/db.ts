@@ -432,12 +432,19 @@ export async function updateSiteSettings(settings: Partial<SiteSettings>): Promi
   try {
     const admin = createAdminClient();
     if (admin) {
+      let id = settings.id;
+      if (!id) {
+        const { data: existing } = await admin.from("site_settings").select("id").limit(1).single();
+        id = existing?.id;
+      }
+
       const { data, error } = await admin
         .from("site_settings")
-        .upsert({ ...settings, updated_at: new Date().toISOString() })
+        .upsert({ ...settings, id, updated_at: new Date().toISOString() })
         .select()
         .single();
       if (!error && data) return data;
+      if (error) console.error("Supabase update site settings error:", error);
     }
   } catch (err) {
     console.error("Error updating site settings in Supabase:", err);

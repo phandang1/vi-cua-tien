@@ -85,6 +85,7 @@ export default function StorefrontClient({
         {/* 3. Search Bar with Real-time suggestions & All-product search */}
         <SearchBar
           products={initialProducts}
+          popularKeywords={settings.popular_keywords}
           onSearch={setSearchKeyword}
           onSelectProduct={(p) => {
             setSearchKeyword(p.title);

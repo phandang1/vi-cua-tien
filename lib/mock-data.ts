@@ -169,4 +169,5 @@ export const initialSiteSettings: SiteSettings = {
   logo_url: "/logo.png",
   hero_image_url: "/hero-bg.jpg",
   footer_text: "EAT GOOD · LIVE BETTER · BE HAPPIER",
+  popular_keywords: "Hạt dinh dưỡng, Trà gạo lứt, Trà hoa cúc, Tương ớt, Xoài sấy, Granola",
 };

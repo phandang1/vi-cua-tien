@@ -223,6 +223,34 @@ export default function AdminSettingsPage() {
           </div>
         </div>
 
+        {/* 3. Popular Keywords */}
+        <div className="space-y-4">
+          <h2 className="font-serif text-lg font-bold text-[#27351E] border-b border-[#E2DAC5] pb-2">
+            3. Từ khóa tìm kiếm phổ biến
+          </h2>
+          <p className="text-xs text-[#27351E]/70">
+            Các từ khóa gợi ý hiển thị khi khách bấm vào ô tìm kiếm trên trang chủ.
+          </p>
+
+          <div className="space-y-1.5">
+            <label className="text-xs font-bold text-[#27351E] uppercase">
+              Danh sách từ khóa (cách nhau bởi dấu phẩy ,)
+            </label>
+            <input
+              type="text"
+              value={settings.popular_keywords || ""}
+              onChange={(e) =>
+                setSettings({ ...settings, popular_keywords: e.target.value })
+              }
+              placeholder="Ví dụ: Hạt dinh dưỡng, Trà gạo lứt, Trà hoa cúc, Tương ớt, Xoài sấy, Granola"
+              className="w-full bg-white border border-[#E2DAC5] rounded-xl px-3 py-2 text-sm text-[#27351E] focus:outline-none focus:border-[#53683A]"
+            />
+            <p className="text-[11px] text-[#53683A] mt-1">
+              💡 Phân cách các từ khóa bằng dấu phẩy. Khách hàng bấm vào từ nào sẽ tự động lọc ra các sản phẩm tương ứng.
+            </p>
+          </div>
+        </div>
+
         {/* Feedback message */}
         {feedback && (
           <div className="p-3 bg-emerald-50 text-emerald-800 rounded-xl text-xs flex items-center gap-2 border border-emerald-200">

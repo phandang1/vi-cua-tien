@@ -41,6 +41,7 @@ export interface SiteSettings {
   logo_url: string;
   hero_image_url: string;
   footer_text: string;
+  popular_keywords?: string | null;
   updated_at?: string;
 }
 
