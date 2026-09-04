@@ -17,6 +17,17 @@ let fallbackClicks: {
 }[] = [];
 
 export async function getCategories(): Promise<Category[]> {
+  // Virtual "Tất cả" category always at front
+  const tatCa: Category = {
+    id: "tat-ca",
+    name: "Tất cả",
+    slug: "tat-ca",
+    icon: "utensils-crossed",
+    description: "Tất cả sản phẩm tinh hoa ẩm thực",
+    sort_order: 0,
+    is_active: true,
+  };
+
   try {
     const supabase = createPublicClient();
     if (supabase) {
@@ -27,16 +38,16 @@ export async function getCategories(): Promise<Category[]> {
         .order("sort_order", { ascending: true });
 
       if (!error && data && data.length > 0) {
-        return data;
+        return [tatCa, ...data];
       }
     }
   } catch (err) {
     console.error("Error fetching categories from Supabase, using fallback:", err);
   }
 
-  return fallbackCategories
-    .filter((c) => c.is_active)
-    .sort((a, b) => a.sort_order - b.sort_order);
+  return [tatCa, ...fallbackCategories
+    .filter((c) => c.is_active && c.slug !== "tat-ca")
+    .sort((a, b) => a.sort_order - b.sort_order)];
 }
 
 export async function getAllCategoriesAdmin(): Promise<Category[]> {

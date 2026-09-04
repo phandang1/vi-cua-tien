@@ -4,11 +4,15 @@ import { Category } from "@/types/database";
 import {
   Leaf,
   Utensils,
+  UtensilsCrossed,
   Coffee,
   Soup,
   CookingPot,
   LayoutGrid,
   Sparkles,
+  Salad,
+  Wheat,
+  ShoppingBasket,
 } from "lucide-react";
 
 interface CategoryNavProps {
@@ -24,11 +28,19 @@ export default function CategoryNav({
 }: CategoryNavProps) {
   // Helper to get matching icon
   const renderIcon = (iconName?: string | null) => {
+    // If icon contains emoji characters, render directly as text
+    if (iconName && /\p{Emoji}/u.test(iconName) && iconName.length <= 4) {
+      return <span className="text-2xl leading-none">{iconName}</span>;
+    }
     switch (iconName) {
       case "leaf":
         return <Leaf className="w-6 h-6" />;
       case "utensils":
         return <Utensils className="w-6 h-6" />;
+      case "utensils-crossed":
+      case "food":
+      case "all":
+        return <UtensilsCrossed className="w-6 h-6" />;
       case "coffee":
       case "tea":
         return <Coffee className="w-6 h-6" />;
@@ -40,6 +52,16 @@ export default function CategoryNav({
         return <CookingPot className="w-6 h-6" />;
       case "grid":
         return <LayoutGrid className="w-6 h-6" />;
+      case "salad":
+      case "vegetable":
+        return <Salad className="w-6 h-6" />;
+      case "wheat":
+      case "ingredient":
+      case "nguyen-lieu":
+        return <Wheat className="w-6 h-6" />;
+      case "basket":
+      case "shopping":
+        return <ShoppingBasket className="w-6 h-6" />;
       default:
         return <Sparkles className="w-6 h-6" />;
     }
