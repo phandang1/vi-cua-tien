@@ -1,0 +1,84 @@
+import Link from "next/link";
+import {
+  LayoutDashboard,
+  Package,
+  PlusCircle,
+  FolderTree,
+  BarChart3,
+  Sliders,
+  ExternalLink,
+  Leaf,
+} from "lucide-react";
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const navItems = [
+    { name: "Tổng quan", href: "/admin", icon: LayoutDashboard },
+    { name: "Sản phẩm", href: "/admin/products", icon: Package },
+    { name: "Thêm từ Shopee", href: "/admin/products/new", icon: PlusCircle, highlight: true },
+    { name: "Danh mục", href: "/admin/categories", icon: FolderTree },
+    { name: "Thống kê Clicks", href: "/admin/analytics", icon: BarChart3 },
+    { name: "Cài đặt trang", href: "/admin/settings", icon: Sliders },
+  ];
+
+  return (
+    <div className="min-h-screen bg-[#F4F6EF] flex flex-col">
+      {/* Top Admin Navbar */}
+      <header className="bg-[#FFFDF7] border-b border-[#E2DAC5] sticky top-0 z-30 shadow-xs">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/admin"
+              className="flex items-center gap-2 font-serif text-xl font-bold text-[#27351E]"
+            >
+              <span className="w-8 h-8 rounded-full bg-[#53683A] text-white flex items-center justify-center text-sm shadow-xs">
+                🍃
+              </span>
+              <span>Vị Của Tiên Admin</span>
+            </Link>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <Link
+              href="/"
+              target="_blank"
+              className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-[#53683A] hover:text-[#27351E] bg-[#E8EEDB] hover:bg-[#dbe4cc] px-3.5 py-1.5 rounded-full transition-colors"
+            >
+              <span>Xem website</span>
+              <ExternalLink className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* Secondary Navigation Row */}
+        <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-1 overflow-x-auto py-2 scrollbar-none border-t border-[#E2DAC5]/40 text-xs sm:text-sm">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-medium whitespace-nowrap transition-colors ${
+                  item.highlight
+                    ? "bg-[#53683A] text-white hover:bg-[#44552f]"
+                    : "text-[#27351E]/80 hover:text-[#27351E] hover:bg-black/5"
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                <span>{item.name}</span>
+              </Link>
+            );
+          })}
+        </nav>
+      </header>
+
+      {/* Main Admin Content Area */}
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        {children}
+      </main>
+    </div>
+  );
+}
