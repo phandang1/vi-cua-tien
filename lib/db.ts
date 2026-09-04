@@ -311,27 +311,28 @@ export async function getAnalyticsSummary(): Promise<ClickAnalyticsSummary> {
 export async function saveProduct(product: Partial<Product>): Promise<Product> {
   try {
     const admin = createAdminClient();
-    if (admin) {
-      if (product.id && !product.id.startsWith("prod-")) {
-        const { data, error } = await admin
-          .from("products")
-          .update({ ...product, updated_at: new Date().toISOString() })
-          .eq("id", product.id)
-          .select()
-          .single();
-        if (!error && data) return data;
-      } else {
-        const { id, ...newProd } = product;
-        const { data, error } = await admin
-          .from("products")
-          .insert({ ...newProd, updated_at: new Date().toISOString() })
-          .select()
-          .single();
-        if (!error && data) return data;
-      }
+    if (product.id) {
+      // Update existing product
+      const { data, error } = await admin
+        .from("products")
+        .update({ ...product, updated_at: new Date().toISOString() })
+        .eq("id", product.id)
+        .select()
+        .single();
+      if (!error && data) return data;
+      if (error) console.error("Supabase update error:", error);
+    } else {
+      // Insert new product
+      const { data, error } = await admin
+        .from("products")
+        .insert({ ...product, updated_at: new Date().toISOString() })
+        .select()
+        .single();
+      if (!error && data) return data;
+      if (error) console.error("Supabase insert error:", error);
     }
   } catch (err) {
-    console.error("Error saving product to Supabase, updating fallback:", err);
+    console.error("Error saving product to Supabase:", err);
   }
 
   // Fallback

@@ -57,7 +57,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             alt="Shopee"
             className="w-4 h-4 object-contain shrink-0"
           />
-          <span>Xem trên Shopee</span>
+          <span className="whitespace-nowrap">Xem trên Shopee</span>
         </Link>
       </div>
     </div>
