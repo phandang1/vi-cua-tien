@@ -69,11 +69,27 @@ export default function AdminProductsPage() {
       const updated = { ...product, is_active: !product.is_active };
       setProducts(products.map((p) => (p.id === product.id ? updated : p)));
 
-      await fetch("/api/admin/products", {
+      const res = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated),
+        body: JSON.stringify({
+          id: product.id,
+          title: product.title,
+          category_id: product.category_id,
+          affiliate_url: product.affiliate_url,
+          shopee_url: product.shopee_url,
+          thumbnail_url: product.thumbnail_url,
+          slug: product.slug,
+          sort_order: product.sort_order,
+          is_featured: product.is_featured,
+          is_active: !product.is_active,
+        }),
       });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        alert(json.error || "Không thể cập nhật trạng thái");
+        loadData();
+      }
     } catch (err) {
       console.error(err);
       loadData();
@@ -85,11 +101,27 @@ export default function AdminProductsPage() {
       const updated = { ...product, is_featured: !product.is_featured };
       setProducts(products.map((p) => (p.id === product.id ? updated : p)));
 
-      await fetch("/api/admin/products", {
+      const res = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(updated),
+        body: JSON.stringify({
+          id: product.id,
+          title: product.title,
+          category_id: product.category_id,
+          affiliate_url: product.affiliate_url,
+          shopee_url: product.shopee_url,
+          thumbnail_url: product.thumbnail_url,
+          slug: product.slug,
+          sort_order: product.sort_order,
+          is_featured: !product.is_featured,
+          is_active: product.is_active,
+        }),
       });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        alert(json.error || "Không thể cập nhật trạng thái nổi bật");
+        loadData();
+      }
     } catch (err) {
       console.error(err);
       loadData();
@@ -139,15 +171,24 @@ export default function AdminProductsPage() {
       const res = await fetch("/api/admin/products", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(editingProduct),
+        body: JSON.stringify({
+          id: editingProduct.id,
+          title: editingProduct.title,
+          category_id: editingProduct.category_id,
+          affiliate_url: editingProduct.affiliate_url,
+          shopee_url: editingProduct.shopee_url,
+          thumbnail_url: editingProduct.thumbnail_url,
+          slug: editingProduct.slug,
+          sort_order: editingProduct.sort_order,
+          is_featured: editingProduct.is_featured,
+          is_active: editingProduct.is_active,
+        }),
       });
 
       const json = await res.json();
       if (json.success) {
-        setProducts(
-          products.map((p) => (p.id === editingProduct.id ? editingProduct : p))
-        );
         setEditingProduct(null);
+        await loadData();
       } else {
         setEditError(json.error || "Lỗi lưu chỉnh sửa");
       }

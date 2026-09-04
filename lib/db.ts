@@ -52,7 +52,7 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getAllCategoriesAdmin(): Promise<Category[]> {
   try {
-    const supabase = await createClient();
+    const supabase = createAdminClient();
     if (supabase) {
       const { data, error } = await supabase
         .from("categories")
@@ -62,9 +62,10 @@ export async function getAllCategoriesAdmin(): Promise<Category[]> {
       if (!error && data) {
         return data;
       }
+      if (error) console.error("Supabase admin categories error:", error);
     }
   } catch (err) {
-    console.error("Error fetching admin categories, using fallback:", err);
+    console.error("Error fetching admin categories:", err);
   }
 
   return [...fallbackCategories].sort((a, b) => a.sort_order - b.sort_order);
@@ -320,120 +321,104 @@ export async function getAnalyticsSummary(): Promise<ClickAnalyticsSummary> {
 
 // Admin Mutators
 export async function saveProduct(product: Partial<Product>): Promise<Product> {
-  try {
-    const admin = createAdminClient();
-    if (product.id) {
-      // Update existing product
-      const { data, error } = await admin
-        .from("products")
-        .update({ ...product, updated_at: new Date().toISOString() })
-        .eq("id", product.id)
-        .select()
-        .single();
-      if (!error && data) return data;
-      if (error) console.error("Supabase update error:", error);
-    } else {
-      // Insert new product
-      const { data, error } = await admin
-        .from("products")
-        .insert({ ...product, updated_at: new Date().toISOString() })
-        .select()
-        .single();
-      if (!error && data) return data;
-      if (error) console.error("Supabase insert error:", error);
-    }
-  } catch (err) {
-    console.error("Error saving product to Supabase:", err);
-  }
+  const admin = createAdminClient();
 
-  // Fallback
-  if (product.id) {
-    const idx = fallbackProducts.findIndex((p) => p.id === product.id);
-    if (idx !== -1) {
-      fallbackProducts[idx] = { ...fallbackProducts[idx], ...product } as Product;
-      return fallbackProducts[idx];
-    }
-  }
-
-  const newP: Product = {
-    id: "prod-" + Date.now(),
-    category_id: product.category_id || fallbackCategories[0].id,
-    title: product.title || "Sản phẩm mới",
-    slug: product.slug || "san-pham-" + Date.now(),
-    shopee_url: product.shopee_url || "",
-    affiliate_url: product.affiliate_url || "",
-    thumbnail_url: product.thumbnail_url || "",
-    sort_order: product.sort_order ?? fallbackProducts.length + 1,
-    is_featured: product.is_featured ?? false,
-    is_active: product.is_active ?? true,
-    created_at: new Date().toISOString(),
+  // Strip relation objects (like category) and construct clean payload
+  const { category, ...cleanProduct } = product as any;
+  const payload: any = {
     updated_at: new Date().toISOString(),
   };
-  fallbackProducts.unshift(newP);
-  return newP;
+
+  if (cleanProduct.category_id !== undefined) payload.category_id = cleanProduct.category_id;
+  if (cleanProduct.title !== undefined) payload.title = cleanProduct.title;
+  if (cleanProduct.slug !== undefined) payload.slug = cleanProduct.slug;
+  if (cleanProduct.shopee_url !== undefined) payload.shopee_url = cleanProduct.shopee_url;
+  if (cleanProduct.affiliate_url !== undefined) payload.affiliate_url = cleanProduct.affiliate_url;
+  if (cleanProduct.thumbnail_url !== undefined) payload.thumbnail_url = cleanProduct.thumbnail_url;
+  if (cleanProduct.sort_order !== undefined) payload.sort_order = cleanProduct.sort_order;
+  if (cleanProduct.is_featured !== undefined) payload.is_featured = cleanProduct.is_featured;
+  if (cleanProduct.is_active !== undefined) payload.is_active = cleanProduct.is_active;
+
+  if (product.id) {
+    // Update existing product
+    const { data, error } = await admin
+      .from("products")
+      .update(payload)
+      .eq("id", product.id)
+      .select("*, category:categories(*)")
+      .single();
+
+    if (error) {
+      console.error("Supabase update product error:", error);
+      throw new Error(error.message || "Không thể cập nhật sản phẩm trong Supabase");
+    }
+    return data;
+  } else {
+    // Insert new product
+    const { data, error } = await admin
+      .from("products")
+      .insert(payload)
+      .select("*, category:categories(*)")
+      .single();
+
+    if (error) {
+      console.error("Supabase insert product error:", error);
+      throw new Error(error.message || "Không thể tạo sản phẩm trong Supabase");
+    }
+    return data;
+  }
 }
 
 export async function deleteProduct(id: string): Promise<boolean> {
-  try {
-    const admin = createAdminClient();
-    if (admin && !id.startsWith("prod-")) {
-      const { error } = await admin.from("products").delete().eq("id", id);
-      if (!error) return true;
-    }
-  } catch (err) {
-    console.error("Error deleting product from Supabase:", err);
+  const admin = createAdminClient();
+  const { error } = await admin.from("products").delete().eq("id", id);
+  if (error) {
+    console.error("Supabase delete product error:", error);
+    throw new Error(error.message || "Không thể xóa sản phẩm trong Supabase");
   }
-
-  fallbackProducts = fallbackProducts.filter((p) => p.id !== id);
   return true;
 }
 
 export async function saveCategory(category: Partial<Category>): Promise<Category> {
-  try {
-    const admin = createAdminClient();
-    if (category.id) {
-      // Update existing category
-      const { data, error } = await admin
-        .from("categories")
-        .update({ ...category, updated_at: new Date().toISOString() })
-        .eq("id", category.id)
-        .select()
-        .single();
-      if (!error && data) return data;
-      if (error) console.error("Supabase category update error:", error);
-    } else {
-      // Insert new category
-      const { data, error } = await admin
-        .from("categories")
-        .insert({ ...category, updated_at: new Date().toISOString() })
-        .select()
-        .single();
-      if (!error && data) return data;
-      if (error) console.error("Supabase category insert error:", error);
-    }
-  } catch (err) {
-    console.error("Error saving category to Supabase:", err);
-  }
+  const admin = createAdminClient();
+
+  const payload: any = {
+    updated_at: new Date().toISOString(),
+  };
+
+  if (category.name !== undefined) payload.name = category.name;
+  if (category.slug !== undefined) payload.slug = category.slug;
+  if (category.icon !== undefined) payload.icon = category.icon;
+  if (category.description !== undefined) payload.description = category.description;
+  if (category.sort_order !== undefined) payload.sort_order = category.sort_order;
+  if (category.is_active !== undefined) payload.is_active = category.is_active;
 
   if (category.id) {
-    const idx = fallbackCategories.findIndex((c) => c.id === category.id);
-    if (idx !== -1) {
-      fallbackCategories[idx] = { ...fallbackCategories[idx], ...category } as Category;
-      return fallbackCategories[idx];
-    }
-  }
+    const { data, error } = await admin
+      .from("categories")
+      .update(payload)
+      .eq("id", category.id)
+      .select()
+      .single();
 
-  const newC: Category = {
-    id: "cat-" + Date.now(),
-    name: category.name || "Danh mục mới",
-    slug: category.slug || "danh-muc-" + Date.now(),
-    icon: category.icon || "leaf",
-    description: category.description || "",
-    sort_order: category.sort_order ?? fallbackCategories.length,
-    is_active: category.is_active ?? true,
-  };
-  fallbackCategories.push(newC);
-  return newC;
+    if (error) {
+      console.error("Supabase update category error:", error);
+      throw new Error(error.message || "Không thể cập nhật danh mục trong Supabase");
+    }
+    return data;
+  } else {
+    const { data, error } = await admin
+      .from("categories")
+      .insert(payload)
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Supabase insert category error:", error);
+      throw new Error(error.message || "Không thể tạo danh mục trong Supabase");
+    }
+    return data;
+  }
 }
 
 export async function deleteCategory(id: string): Promise<boolean> {
