@@ -24,6 +24,7 @@ export default function AdminProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string>("");
 
   const [search, setSearch] = useState("");
   const [filterType, setFilterType] = useState<"all" | "featured" | "hidden">("all");
@@ -36,6 +37,7 @@ export default function AdminProductsPage() {
 
   const loadData = async () => {
     setIsLoading(true);
+    setLoadError("");
     try {
       const [prodRes, catRes] = await Promise.all([
         fetch("/api/admin/products", { cache: "no-store" }),
@@ -44,10 +46,15 @@ export default function AdminProductsPage() {
       const prodJson = await prodRes.json();
       const catJson = await catRes.json();
 
-      if (prodJson.success) setProducts(prodJson.data);
+      if (prodJson.success) {
+        setProducts(prodJson.data);
+      } else {
+        setLoadError(prodJson.error || "Không thể tải sản phẩm từ Supabase");
+      }
       if (catJson.success) setCategories(catJson.data);
     } catch (err) {
       console.error("Error loading products:", err);
+      setLoadError("Lỗi kết nối server");
     } finally {
       setIsLoading(false);
     }
@@ -262,6 +269,22 @@ export default function AdminProductsPage() {
                 <tr>
                   <td colSpan={5} className="text-center py-8 text-xs text-[#27351E]/60">
                     Đang tải danh sách sản phẩm...
+                  </td>
+                </tr>
+              ) : loadError ? (
+                <tr>
+                  <td colSpan={5} className="text-center py-8">
+                    <div className="inline-block bg-red-50 border border-red-200 rounded-xl px-6 py-4 text-left max-w-lg">
+                      <p className="text-red-700 font-semibold text-sm mb-1">⚠️ Không thể kết nối Supabase</p>
+                      <p className="text-red-600 text-xs">{loadError}</p>
+                      <p className="text-gray-500 text-xs mt-2">Kiểm tra env vars trên Vercel: SUPABASE_SERVICE_ROLE_KEY</p>
+                      <button
+                        onClick={loadData}
+                        className="mt-3 px-4 py-1.5 bg-red-600 text-white text-xs rounded-lg hover:bg-red-700"
+                      >
+                        Thử lại
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ) : filteredProducts.length === 0 ? (
