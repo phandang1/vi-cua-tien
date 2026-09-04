@@ -1,5 +1,6 @@
+"use client";
+
 import Image from "next/image";
-import Link from "next/link";
 import { Product } from "@/types/database";
 
 interface ProductCardProps {
@@ -7,12 +8,10 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  // Shopee S bag icon SVG
-  const ShopeeIcon = () => (
-    <svg viewBox="0 0 24 24" className="w-4 h-4 fill-white shrink-0">
-      <path d="M19 6h-2c0-2.76-2.24-5-5-5S7 3.24 7 6H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-7-3c1.66 0 3 1.34 3 3H9c0-1.66 1.34-3 3-3zm7 17H5V8h14v12zm-7-8.5c-1.38 0-2.5 1.12-2.5 2.5s1.12 2.5 2.5 2.5 2.5-1.12 2.5-2.5-1.12-2.5-2.5-2.5z" />
-    </svg>
-  );
+  const handleShopeeClick = () => {
+    // Fire background click tracking without blocking navigation
+    fetch(`/go/${product.slug}`, { method: "HEAD" }).catch(() => {});
+  };
 
   return (
     <div className="bg-[#FFFDF7] rounded-2xl overflow-hidden border border-[#E2DAC5]/70 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group h-full">
@@ -44,11 +43,12 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.title}
         </h3>
 
-        {/* Shopee CTA Button -> /go/[slug] */}
-        <Link
-          href={`/go/${product.slug}`}
+        {/* Shopee CTA Button -> uses affiliate_url directly */}
+        <a
+          href={product.affiliate_url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={handleShopeeClick}
           className="w-full bg-[#EE4D2D] hover:bg-[#d73212] active:scale-[0.98] text-white py-2.5 px-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-xs sm:text-sm shadow-xs transition-all duration-200 shopee-btn"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -58,7 +58,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             className="w-4 h-4 object-contain shrink-0"
           />
           <span className="whitespace-nowrap">Xem trên Shopee</span>
-        </Link>
+        </a>
       </div>
     </div>
   );
