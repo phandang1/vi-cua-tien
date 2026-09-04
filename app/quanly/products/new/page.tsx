@@ -143,7 +143,7 @@ export default function QuickAddShopeeProductPage() {
 
       const json = await res.json();
       if (json.success) {
-        router.push("/admin/products");
+        router.push("/quanly/products");
       } else {
         setSubmitError(json.error || "Không thể lưu sản phẩm");
       }
@@ -159,7 +159,7 @@ export default function QuickAddShopeeProductPage() {
       {/* Header */}
       <div className="flex items-center gap-3">
         <Link
-          href="/admin/products"
+          href="/quanly/products"
           className="w-9 h-9 rounded-full bg-white border border-[#E2DAC5] flex items-center justify-center text-[#27351E] hover:bg-cream-200 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -375,7 +375,7 @@ export default function QuickAddShopeeProductPage() {
         {/* Action Buttons */}
         <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E2DAC5]">
           <Link
-            href="/admin/products"
+            href="/quanly/products"
             className="px-5 py-2.5 rounded-xl text-xs sm:text-sm font-medium text-[#27351E] hover:bg-cream-200 transition-colors"
           >
             Hủy bỏ

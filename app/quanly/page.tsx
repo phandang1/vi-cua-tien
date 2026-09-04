@@ -35,7 +35,7 @@ export default async function AdminDashboardPage() {
         </div>
 
         <Link
-          href="/admin/products/new"
+          href="/quanly/products/new"
           className="inline-flex items-center justify-center gap-2 bg-[#EE4D2D] hover:bg-[#d73212] text-white px-5 py-3 rounded-xl font-medium text-sm shadow-md transition-all active:scale-95 shrink-0"
         >
           <PlusCircle className="w-5 h-5" />
@@ -132,7 +132,7 @@ export default async function AdminDashboardPage() {
               </p>
             </div>
             <Link
-              href="/admin/analytics"
+              href="/quanly/analytics"
               className="text-xs text-[#53683A] hover:underline flex items-center gap-1 font-medium"
             >
               <span>Xem chi tiết</span>
@@ -207,7 +207,7 @@ export default async function AdminDashboardPage() {
             </ol>
             <div className="mt-4 pt-4 border-t border-[#E2DAC5]">
               <Link
-                href="/admin/products/new"
+                href="/quanly/products/new"
                 className="block text-center bg-[#53683A] hover:bg-[#44552f] text-white text-xs font-medium py-2 rounded-xl transition-colors"
               >
                 Thử ngay bây giờ →

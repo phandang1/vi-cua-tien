@@ -171,7 +171,7 @@ export default function AdminProductsPage() {
         </div>
 
         <Link
-          href="/admin/products/new"
+          href="/quanly/products/new"
           className="inline-flex items-center gap-2 bg-[#EE4D2D] hover:bg-[#d73212] text-white px-5 py-2.5 rounded-xl font-medium text-xs sm:text-sm shadow-sm transition-all active:scale-95 shrink-0"
         >
           <PlusCircle className="w-4 h-4" />

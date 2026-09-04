@@ -72,20 +72,7 @@ export default function Navbar() {
               >
                 Sản phẩm nổi bật
               </Link>
-              <Link
-                href="/admin"
-                onClick={() => setIsOpen(false)}
-                className="px-4 py-2.5 rounded-xl font-medium text-[#53683A] bg-[#53683A]/10 flex items-center justify-between hover:bg-[#53683A]/20 transition-colors mt-4"
-              >
-                <span className="flex items-center gap-2">
-                  <Settings className="w-4 h-4" />
-                  Trang quản trị (Admin)
-                </span>
-                <span className="text-xs bg-[#53683A] text-white px-2 py-0.5 rounded-full">
-                  Admin
-                </span>
-              </Link>
-            </nav>
+              </nav>
 
             <div className="mt-auto pt-6 border-t border-[#E2DAC5] text-xs text-[#27351E]/70 space-y-2">
               <p className="font-serif italic text-center">

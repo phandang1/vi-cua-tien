@@ -7,6 +7,7 @@ import {
   BarChart3,
   Sliders,
   ExternalLink,
+  LogOut,
   Leaf,
 } from "lucide-react";
 
@@ -16,12 +17,12 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   const navItems = [
-    { name: "Tổng quan", href: "/admin", icon: LayoutDashboard },
-    { name: "Sản phẩm", href: "/admin/products", icon: Package },
-    { name: "Thêm từ Shopee", href: "/admin/products/new", icon: PlusCircle, highlight: true },
-    { name: "Danh mục", href: "/admin/categories", icon: FolderTree },
-    { name: "Thống kê Clicks", href: "/admin/analytics", icon: BarChart3 },
-    { name: "Cài đặt trang", href: "/admin/settings", icon: Sliders },
+    { name: "Tổng quan", href: "/quanly", icon: LayoutDashboard },
+    { name: "Sản phẩm", href: "/quanly/products", icon: Package },
+    { name: "Thêm từ Shopee", href: "/quanly/products/new", icon: PlusCircle, highlight: true },
+    { name: "Danh mục", href: "/quanly/categories", icon: FolderTree },
+    { name: "Thống kê Clicks", href: "/quanly/analytics", icon: BarChart3 },
+    { name: "Cài đặt trang", href: "/quanly/settings", icon: Sliders },
   ];
 
   return (
@@ -31,17 +32,17 @@ export default function AdminLayout({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
-              href="/admin"
+              href="/quanly"
               className="flex items-center gap-2 font-serif text-xl font-bold text-[#27351E]"
             >
               <span className="w-8 h-8 rounded-full bg-[#53683A] text-white flex items-center justify-center text-sm shadow-xs">
                 🍃
               </span>
-              <span>Vị Của Tiên Admin</span>
+              <span>Vị Của Tiên Quản Lý</span>
             </Link>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             <Link
               href="/"
               target="_blank"
@@ -50,6 +51,17 @@ export default function AdminLayout({
               <span>Xem website</span>
               <ExternalLink className="w-3.5 h-3.5" />
             </Link>
+
+            <form action="/api/auth/logout" method="POST">
+              <button
+                type="submit"
+                className="flex items-center gap-1 text-xs text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full transition-colors"
+                title="Đăng xuất"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Đăng xuất</span>
+              </button>
+            </form>
           </div>
         </div>
 
