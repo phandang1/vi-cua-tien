@@ -1,13 +1,31 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveProduct, deleteProduct, getProducts } from "@/lib/db";
+import { saveProduct, deleteProduct } from "@/lib/db";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
 export async function GET(request: NextRequest) {
   try {
-    const products = await getProducts({ includeInactive: true });
-    return NextResponse.json({ success: true, data: products });
+    // Use admin client (service role key) to bypass RLS and avoid fallback mode
+    const admin = createAdminClient();
+    if (admin) {
+      const { data, error } = await admin
+        .from("products")
+        .select("*, category:categories(*)")
+        .order("sort_order", { ascending: true });
+
+      if (!error) {
+        return NextResponse.json({ success: true, data: data || [], source: "supabase" });
+      }
+      console.error("Supabase admin query error:", error);
+    }
+
+    // If admin client not available, return error instead of mock data
+    return NextResponse.json(
+      { success: false, error: "Không thể kết nối Supabase. Kiểm tra env vars SUPABASE_SERVICE_ROLE_KEY." },
+      { status: 503 }
+    );
   } catch (error: any) {
     return NextResponse.json({ success: false, error: error.message }, { status: 500 });
   }
