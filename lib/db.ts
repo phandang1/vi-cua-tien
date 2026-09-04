@@ -391,24 +391,25 @@ export async function deleteProduct(id: string): Promise<boolean> {
 export async function saveCategory(category: Partial<Category>): Promise<Category> {
   try {
     const admin = createAdminClient();
-    if (admin) {
-      if (category.id && !category.id.startsWith("cat-")) {
-        const { data, error } = await admin
-          .from("categories")
-          .update({ ...category, updated_at: new Date().toISOString() })
-          .eq("id", category.id)
-          .select()
-          .single();
-        if (!error && data) return data;
-      } else {
-        const { id, ...newCat } = category;
-        const { data, error } = await admin
-          .from("categories")
-          .insert({ ...newCat, updated_at: new Date().toISOString() })
-          .select()
-          .single();
-        if (!error && data) return data;
-      }
+    if (category.id) {
+      // Update existing category
+      const { data, error } = await admin
+        .from("categories")
+        .update({ ...category, updated_at: new Date().toISOString() })
+        .eq("id", category.id)
+        .select()
+        .single();
+      if (!error && data) return data;
+      if (error) console.error("Supabase category update error:", error);
+    } else {
+      // Insert new category
+      const { data, error } = await admin
+        .from("categories")
+        .insert({ ...category, updated_at: new Date().toISOString() })
+        .select()
+        .single();
+      if (!error && data) return data;
+      if (error) console.error("Supabase category insert error:", error);
     }
   } catch (err) {
     console.error("Error saving category to Supabase:", err);
@@ -438,10 +439,9 @@ export async function saveCategory(category: Partial<Category>): Promise<Categor
 export async function deleteCategory(id: string): Promise<boolean> {
   try {
     const admin = createAdminClient();
-    if (admin && !id.startsWith("cat-")) {
-      const { error } = await admin.from("categories").delete().eq("id", id);
-      if (!error) return true;
-    }
+    const { error } = await admin.from("categories").delete().eq("id", id);
+    if (!error) return true;
+    if (error) console.error("Supabase category delete error:", error);
   } catch (err) {
     console.error("Error deleting category from Supabase:", err);
   }
