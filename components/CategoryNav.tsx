@@ -66,15 +66,15 @@ export default function CategoryNav({
   };
 
   return (
-    <nav className="w-full max-w-2xl mx-auto px-4 my-4" aria-label="Danh mục sản phẩm">
-      <div className="flex items-center justify-center gap-4 sm:gap-7 overflow-x-auto pb-2 scrollbar-none">
+    <nav className="w-full max-w-2xl mx-auto px-4 my-2" aria-label="Danh mục sản phẩm">
+      <div className="flex items-center justify-center gap-4 sm:gap-7 overflow-x-auto pt-3 pb-3 px-2 scrollbar-none">
         {categories.map((cat) => {
           const isActive = activeSlug === cat.slug;
           return (
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.slug)}
-              className="flex flex-col items-center gap-2 min-w-[64px] sm:min-w-[76px] transition-all group cursor-pointer focus:outline-none"
+              className="flex flex-col items-center gap-2 min-w-[64px] sm:min-w-[76px] py-1 transition-all group cursor-pointer focus:outline-none"
             >
               {/* Circular Icon Pill */}
               <div

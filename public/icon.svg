@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5a723f"/>
+      <stop offset="100%" stop-color="#44572e"/>
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="16" fill="url(#g)"/>
+  <!-- Decorative steam / leaf -->
+  <path d="M32 14c-2 4-1 8 1 10 3-1 5-4 4-8-1-1-3-2-5-2z" fill="#D4AF37"/>
+  <!-- Fork & Spoon crossed or Bowl with food -->
+  <!-- Bowl -->
+  <path d="M16 33c0 9.4 7.2 17 16 17s16-7.6 16-17H16z" fill="#FFFDF7"/>
+  <!-- Food / Salad leaves in bowl -->
+  <path d="M22 30c-2-5 3-9 7-7 3-4 9-2 10 3 4-1 7 3 5 6-7 0-15 0-22-2z" fill="#88A066"/>
+  <ellipse cx="32" cy="33" rx="15" ry="3" fill="#FFFDF7"/>
+  <!-- Chopsticks / accent -->
+  <path d="M20 52h24v3H20z" rx="1.5" fill="#FFFDF7" opacity="0.9"/>
+</svg>

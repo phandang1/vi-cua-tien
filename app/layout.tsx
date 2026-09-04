@@ -20,6 +20,11 @@ export const metadata: Metadata = {
     locale: "vi_VN",
     type: "website",
   },
+  icons: {
+    icon: "/icon.svg",
+    shortcut: "/icon.svg",
+    apple: "/icon.svg",
+  },
 };
 
 export default function RootLayout({
