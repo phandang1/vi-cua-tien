@@ -94,7 +94,12 @@ export default function AdminProductsPage() {
 
     try {
       setProducts(products.filter((p) => p.id !== id));
-      await fetch(`/api/admin/products?id=${id}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/products?id=${id}`, { method: "DELETE" });
+      const json = await res.json();
+      if (!res.ok || !json.success) {
+        alert(json.error || "Không thể xóa sản phẩm");
+        loadData();
+      }
     } catch (err) {
       console.error(err);
       loadData();
