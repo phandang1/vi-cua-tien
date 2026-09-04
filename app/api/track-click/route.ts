@@ -6,12 +6,6 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: NextRequest) {
   try {
-    // Ignore clicks if the user is an admin logged in
-    const adminSession = request.cookies.get("admin_session")?.value;
-    if (adminSession) {
-      return NextResponse.json({ success: true, ignored: "admin" });
-    }
-
     const body = await request.json();
     const { product_id } = body;
 

@@ -157,7 +157,7 @@ export const initialProducts: Product[] = [
 ];
 
 export const initialSiteSettings: SiteSettings = {
-  site_name: "Vị Của Tiên",
+  site_name: "Vị Của Tiên Food",
   tagline: "TINH HOA ẨM THỰC • VỊ NGON TỪ THIÊN NHIÊN",
   description: "Khám phá các sản phẩm ẩm thực, đồ ăn vặt, trà thảo mộc lành mạnh và gia vị truyền thống được Vị Của Tiên chọn lọc tâm huyết.",
   hero_quote: "Món ngon hôm nay là hạnh phúc ngày mai",

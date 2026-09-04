@@ -9,14 +9,14 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Vị Của Tiên — Tinh Hoa Ẩm Thực, Vị Ngon Từ Thiên Nhiên",
+  title: "Vị Của Tiên Food — Tinh Hoa Ẩm Thực, Vị Ngon Từ Thiên Nhiên",
   description:
-    "Khám phá các sản phẩm ẩm thực, đồ ăn vặt bổ dưỡng, trà thảo mộc thanh nhiệt và gia vị truyền thống được Vị Của Tiên tuyển chọn.",
+    "Khám phá các sản phẩm ẩm thực, đồ ăn vặt bổ dưỡng, trà thảo mộc thanh nhiệt và gia vị truyền thống được Vị Của Tiên Food tuyển chọn.",
   openGraph: {
-    title: "Vị Của Tiên — Tinh Hoa Ẩm Thực",
+    title: "Vị Của Tiên Food — Tinh Hoa Ẩm Thực",
     description: "Món ngon hôm nay là hạnh phúc ngày mai. Sản phẩm chọn lọc uy tín từ Shopee.",
-    url: "https://vicuatien.vn",
-    siteName: "Vị Của Tiên",
+    url: "https://www.vicuatien.food",
+    siteName: "Vị Của Tiên Food",
     locale: "vi_VN",
     type: "website",
   },
