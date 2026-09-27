@@ -17,6 +17,7 @@ export async function GET() {
     service_key_prefix: serviceKey ? serviceKey.substring(0, 20) : null,
     has_admin_password: !!adminPass,
     node_env: process.env.NODE_ENV,
+    version: "v2-sort-featured-5454699",
     timestamp: new Date().toISOString(),
   });
 }
