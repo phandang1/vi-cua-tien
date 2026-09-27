@@ -106,7 +106,10 @@ export async function getProducts(options?: {
         query = query.ilike("title", `%${options.search}%`);
       }
 
-      query = query.order("sort_order", { ascending: true });
+      query = query
+        .order("is_featured", { ascending: false, nullsFirst: false })
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false, nullsFirst: false });
 
       const { data, error } = await query;
       if (!error && data) {
@@ -141,7 +144,20 @@ export async function getProducts(options?: {
   }
 
   return list
-    .sort((a, b) => a.sort_order - b.sort_order)
+    .sort((a, b) => {
+      // 1. Featured first
+      if (Boolean(a.is_featured) !== Boolean(b.is_featured)) {
+        return a.is_featured ? -1 : 1;
+      }
+      // 2. Custom sort order if set
+      if (a.sort_order !== b.sort_order) {
+        return a.sort_order - b.sort_order;
+      }
+      // 3. Newest first
+      const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+      const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+      return timeB - timeA;
+    })
     .map((p) => ({
       ...p,
       category: fallbackCategories.find((c) => c.id === p.category_id),

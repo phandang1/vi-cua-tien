@@ -13,7 +13,9 @@ export async function GET(request: NextRequest) {
       const { data, error } = await admin
         .from("products")
         .select("*, category:categories(*)")
-        .order("sort_order", { ascending: true });
+        .order("is_featured", { ascending: false, nullsFirst: false })
+        .order("sort_order", { ascending: true })
+        .order("created_at", { ascending: false, nullsFirst: false });
 
       if (!error) {
         return NextResponse.json({ success: true, data: data || [], source: "supabase" });

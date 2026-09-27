@@ -22,6 +22,11 @@ export default function ProductCard({ product }: ProductCardProps) {
     <div className="bg-[#FFFDF7] rounded-2xl overflow-hidden border border-[#E2DAC5]/70 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group h-full">
       {/* 1:1 Aspect Ratio Product Thumbnail */}
       <div className="relative aspect-square w-full overflow-hidden bg-cream-200">
+        {product.is_featured && (
+          <span className="absolute top-2 left-2 z-10 bg-amber-500/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-xs flex items-center gap-1 backdrop-blur-xs">
+            ★ Nổi bật
+          </span>
+        )}
         {product.thumbnail_url ? (
           <Image
             src={product.thumbnail_url}

@@ -98,8 +98,21 @@ export default function AdminProductsPage() {
 
   const handleToggleFeatured = async (product: Product) => {
     try {
-      const updated = { ...product, is_featured: !product.is_featured };
-      setProducts(products.map((p) => (p.id === product.id ? updated : p)));
+      const nextFeatured = !product.is_featured;
+      const updated = { ...product, is_featured: nextFeatured };
+      const newProducts = products.map((p) => (p.id === product.id ? updated : p));
+      newProducts.sort((a, b) => {
+        if (Boolean(a.is_featured) !== Boolean(b.is_featured)) {
+          return a.is_featured ? -1 : 1;
+        }
+        if (a.sort_order !== b.sort_order) {
+          return a.sort_order - b.sort_order;
+        }
+        const timeA = a.created_at ? new Date(a.created_at).getTime() : 0;
+        const timeB = b.created_at ? new Date(b.created_at).getTime() : 0;
+        return timeB - timeA;
+      });
+      setProducts(newProducts);
 
       const res = await fetch("/api/admin/products", {
         method: "POST",
@@ -113,7 +126,7 @@ export default function AdminProductsPage() {
           thumbnail_url: product.thumbnail_url,
           slug: product.slug,
           sort_order: product.sort_order,
-          is_featured: !product.is_featured,
+          is_featured: nextFeatured,
           is_active: product.is_active,
         }),
       });
@@ -383,14 +396,24 @@ export default function AdminProductsPage() {
                       <td className="py-3 px-3 text-center">
                         <button
                           onClick={() => handleToggleFeatured(p)}
-                          title="Bật/tắt sản phẩm nổi bật"
-                          className={`p-1.5 rounded-lg transition-colors ${
+                          title={
                             p.is_featured
-                              ? "bg-amber-100 text-amber-600 hover:bg-amber-200"
-                              : "text-[#27351E]/30 hover:bg-black/5"
+                              ? "Đang ghim lên đầu trang chủ (Bấm để bỏ ghim)"
+                              : "Bấm để ghim sản phẩm lên đầu trang chủ"
+                          }
+                          className={`p-2 rounded-xl transition-all active:scale-90 ${
+                            p.is_featured
+                              ? "bg-amber-100 text-amber-500 hover:bg-amber-200 shadow-xs"
+                              : "text-gray-300 hover:text-amber-500 hover:bg-amber-50"
                           }`}
                         >
-                          <Star className="w-4 h-4 fill-current" />
+                          <Star
+                            className={`w-4 h-4 transition-transform ${
+                              p.is_featured
+                                ? "fill-amber-400 stroke-amber-500 scale-110"
+                                : "stroke-current fill-none"
+                            }`}
+                          />
                         </button>
                       </td>
 
