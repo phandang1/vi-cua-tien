@@ -191,8 +191,7 @@ export class ShopeeMetadataService {
         title: "",
         thumbnail: "",
         originalUrl: resolvedUrl,
-        error:
-          "Không thể tự động lấy thông tin từ link này. Bạn có thể tự nhập tên và dán link ảnh thủ công bên dưới.",
+        error: `Debug: status=${response.status}, target=${targetUrl}, len=${html.length}, snippet=${html.substring(0, 200).replace(/[\r\n]+/g, " ")}`,
       };
     } catch (err: any) {
       console.warn("Shopee metadata fetch error:", err?.message || err);
