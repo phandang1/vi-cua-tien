@@ -98,14 +98,37 @@ export class ShopeeMetadataService {
         try {
           const redirectRes = await fetch(trimmed, {
             headers: {
-              "User-Agent":
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+              "User-Agent": "WhatsApp/2.21.12.21 A",
+              Accept:
+                "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+              "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
             },
-            redirect: "manual",
+            redirect: "follow",
           });
-          const loc = redirectRes.headers.get("location");
-          if (loc) {
-            resolvedUrl = loc;
+          if (redirectRes.url && redirectRes.url !== trimmed) {
+            resolvedUrl = redirectRes.url;
+          }
+          const shortHtml = await redirectRes.text();
+          if (shortHtml.includes("og:title") || shortHtml.includes("og:image")) {
+            const $s = cheerio.load(shortHtml);
+            let sTitle =
+              $s('meta[property="og:title"]').attr("content") ||
+              $s('meta[name="twitter:title"]').attr("content");
+            let sThumb =
+              $s('meta[property="og:image"]').attr("content") ||
+              $s('meta[name="twitter:image"]').attr("content") ||
+              "";
+            if (sTitle) sTitle = sTitle.replace(/\s*\|\s*Shopee.*$/i, "").trim();
+            if (sThumb.includes("d4bbea4570b93bfd5fc652ca82a262a8")) sThumb = "";
+
+            if (sTitle || sThumb) {
+              return {
+                success: true,
+                title: sTitle || "Sản phẩm Shopee",
+                thumbnail: sThumb,
+                originalUrl: resolvedUrl,
+              };
+            }
           }
         } catch (e) {
           console.warn("Failed to resolve shortlink:", e);
@@ -122,21 +145,49 @@ export class ShopeeMetadataService {
       const targetUrl =
         shopId && itemId ? `https://shopee.vn/product/${shopId}/${itemId}` : resolvedUrl;
 
-      // Fetch with Facebookbot crawler User-Agent: Shopee returns full SSR HTML with og:title and og:image!
-      const response = await fetch(targetUrl, {
-        method: "GET",
-        headers: {
-          "User-Agent":
-            "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
-          Accept:
-            "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-          "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
-          "Cache-Control": "no-cache",
-        },
-        redirect: "follow",
-      });
+      // Try crawlers in order of reliability: WhatsApp returns full SSR OG tags on Shopee
+      const crawlers = [
+        "WhatsApp/2.21.12.21 A",
+        "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)",
+      ];
 
-      const html = await response.text();
+      let html = "";
+      for (const ua of crawlers) {
+        try {
+          const response = await fetch(targetUrl, {
+            method: "GET",
+            headers: {
+              "User-Agent": ua,
+              Accept:
+                "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+              "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+              "Cache-Control": "no-cache",
+            },
+            redirect: "follow",
+          });
+
+          if (response.ok) {
+            const fetched = await response.text();
+            if (fetched.includes("og:title") || fetched.includes("og:image")) {
+              html = fetched;
+              break;
+            }
+          }
+        } catch (crawlerErr) {
+          console.warn(`Crawler ${ua} error:`, crawlerErr);
+        }
+      }
+
+      if (!html) {
+        // Fallback: one simple request
+        try {
+          const response = await fetch(targetUrl, {
+            headers: { "User-Agent": "WhatsApp/2.21.12.21 A" },
+            redirect: "follow",
+          });
+          html = await response.text();
+        } catch {}
+      }
       const $ = cheerio.load(html);
 
       // 4. Extract title

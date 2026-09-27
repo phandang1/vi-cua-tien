@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,6 +38,7 @@ export default function QuickAddShopeeProductPage() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Fetch categories on mount
   useEffect(() => {
@@ -56,6 +57,73 @@ export default function QuickAddShopeeProductPage() {
       .finally(() => setIsLoadingCategories(false));
   }, []);
 
+  // Smart URL / Text paste handler
+  const handleShopeeUrlChange = (val: string) => {
+    // 1. Check if user pasted shared text from Shopee App (contains text + link)
+    // Example: "[Mã giảm giá] Tên sản phẩm https://s.shopee.vn/..."
+    const urlMatch = val.match(/(https?:\/\/[^\s]+)/);
+    let targetLink = val.trim();
+
+    if (urlMatch) {
+      targetLink = urlMatch[1];
+      const textBefore = val.replace(targetLink, "").trim();
+      if (textBefore && !title) {
+        const cleanTitle = textBefore.replace(/^\[.*?\]\s*/, "").trim();
+        if (cleanTitle) setTitle(cleanTitle);
+      }
+      if (!affiliateUrl) setAffiliateUrl(targetLink);
+    }
+
+    setShopeeUrl(targetLink);
+
+    // 2. Check if URL contains product title slug (e.g. /Ten-San-Pham-i.123.456)
+    try {
+      const parsed = new URL(targetLink);
+      const decoded = decodeURIComponent(parsed.pathname).replace(/^\/+/, "");
+      const slugMatch = decoded.match(/^(.*?)-i\.(\d+)\.(\d+)/);
+      if (slugMatch && slugMatch[1] && !title) {
+        const extracted = slugMatch[1].replace(/-/g, " ").trim();
+        if (extracted) setTitle(extracted);
+      }
+    } catch {}
+  };
+
+  // Client-side image upload handler with automatic canvas resizing/webp compression
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxDim = 600;
+        let w = img.width;
+        let h = img.height;
+        if (w > h && w > maxDim) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        } else if (h > maxDim) {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, w, h);
+          const dataUrl = canvas.toDataURL("image/webp", 0.85);
+          setThumbnailUrl(dataUrl);
+        }
+      };
+      if (typeof event.target?.result === "string") {
+        img.src = event.target.result;
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Fetch Shopee Metadata
   const handleFetchMetadata = async () => {
     if (!shopeeUrl.trim()) {
@@ -65,6 +133,17 @@ export default function QuickAddShopeeProductPage() {
       });
       return;
     }
+
+    // Try client-side extraction first
+    try {
+      const parsed = new URL(shopeeUrl.trim());
+      const decoded = decodeURIComponent(parsed.pathname).replace(/^\/+/, "");
+      const slugMatch = decoded.match(/^(.*?)-i\.(\d+)\.(\d+)/);
+      if (slugMatch && slugMatch[1] && !title) {
+        const extracted = slugMatch[1].replace(/-/g, " ").trim();
+        if (extracted) setTitle(extracted);
+      }
+    } catch {}
 
     setIsFetchingMetadata(true);
     setMetadataFeedback(null);
@@ -90,7 +169,7 @@ export default function QuickAddShopeeProductPage() {
           type: "warning",
           message:
             data.error ||
-            "Không thể bóc tách tự động do Shopee chặn bot. Bạn vui lòng nhập tiêu đề & link ảnh thủ công nhé.",
+            "Shopee chặn bot tải dữ liệu tự động. Bạn hãy dán link ảnh Shopee hoặc bấm 'Chọn ảnh từ máy' bên dưới nhé.",
         });
       }
     } catch (err: any) {
@@ -186,10 +265,10 @@ export default function QuickAddShopeeProductPage() {
           </label>
           <div className="flex flex-col sm:flex-row gap-2">
             <input
-              type="url"
+              type="text"
               value={shopeeUrl}
-              onChange={(e) => setShopeeUrl(e.target.value)}
-              placeholder="https://shopee.vn/product/... hoặc https://vn.shp.ee/..."
+              onChange={(e) => handleShopeeUrlChange(e.target.value)}
+              placeholder="Dán link Shopee gốc hoặc link rút gọn..."
               className="flex-1 bg-white border border-[#E2DAC5] rounded-xl px-3.5 py-2.5 text-sm text-[#27351E] focus:outline-none focus:border-[#53683A] focus:ring-2 focus:ring-[#53683A]/20"
             />
             <button
@@ -242,11 +321,11 @@ export default function QuickAddShopeeProductPage() {
             </label>
             <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-cream-200 border border-[#E2DAC5] flex items-center justify-center">
               {thumbnailUrl ? (
-                <Image
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
                   src={thumbnailUrl}
                   alt="Product Thumbnail Preview"
-                  fill
-                  className="object-cover"
+                  className="w-full h-full object-cover"
                 />
               ) : (
                 <div className="text-center p-4 text-[#27351E]/40 text-xs">
@@ -255,13 +334,39 @@ export default function QuickAddShopeeProductPage() {
                 </div>
               )}
             </div>
+
+            {/* Hidden File Input for Image Upload */}
             <input
-              type="url"
-              value={thumbnailUrl}
-              onChange={(e) => setThumbnailUrl(e.target.value)}
-              placeholder="Dán link ảnh (https://...)"
-              className="w-full bg-white border border-[#E2DAC5] rounded-lg px-2.5 py-1.5 text-xs text-[#27351E] focus:outline-none focus:border-[#53683A]"
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={handleImageFileChange}
             />
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 bg-white hover:bg-cream-200 text-[#27351E] border border-[#E2DAC5] py-2 px-3 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+              >
+                <Upload className="w-3.5 h-3.5 text-[#53683A]" />
+                <span>Chọn ảnh từ máy</span>
+              </button>
+            </div>
+
+            <div className="space-y-1">
+              <input
+                type="text"
+                value={thumbnailUrl}
+                onChange={(e) => setThumbnailUrl(e.target.value)}
+                placeholder="Hoặc dán link ảnh Shopee..."
+                className="w-full bg-white border border-[#E2DAC5] rounded-lg px-2.5 py-1.5 text-xs text-[#27351E] focus:outline-none focus:border-[#53683A]"
+              />
+              <p className="text-[10px] text-[#27351E]/60">
+                💡 Chuột phải vào ảnh trên Shopee chọn &ldquo;Sao chép địa chỉ hình ảnh&rdquo; rồi dán vào đây.
+              </p>
+            </div>
           </div>
 
           {/* Product Details Form */}
