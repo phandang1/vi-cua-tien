@@ -449,7 +449,7 @@ export default function BikeLightLanding() {
             {/* COMBO 2 CÁI CALLOUT */}
             <div
               onClick={() => scrollToOrder(2)}
-              className="mt-2.5 bg-gradient-to-r from-amber-50 to-yellow-50 border-1.5 border-dashed border-amber-400 rounded-lg p-2.5 cursor-pointer hover:border-amber-500 transition-colors"
+              className="mt-2.5 bg-gradient-to-r from-amber-50 to-yellow-50 border-2 border-dashed border-amber-400 rounded-lg p-2.5 cursor-pointer hover:border-amber-500 transition-colors"
             >
               <div className="flex items-center justify-between mb-1">
                 <span className="text-sm font-black text-amber-900 flex items-center gap-1">
@@ -722,7 +722,7 @@ export default function BikeLightLanding() {
               <select
                 value={selectedCombo}
                 onChange={(e) => setSelectedCombo(Number(e.target.value))}
-                className="w-full bg-white border-1.5 border-slate-300 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-rose-600"
+                className="w-full bg-white border-2 border-slate-300 focus:border-rose-600 rounded-lg px-3 py-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 shadow-xs transition-colors"
               >
                 <option value={1}>1 CÁI: 119.000đ (+ 25k ship = 144k)</option>
                 <option value={2}>COMBO 2 CÁI: 199.000đ (Miễn Phí Ship)</option>
@@ -741,7 +741,7 @@ export default function BikeLightLanding() {
                 onChange={(e) => setCustName(e.target.value)}
                 placeholder="Ví dụ: Nguyễn Văn Hoàng"
                 required
-                className="w-full bg-white border-1.5 border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-rose-600"
+                className="w-full bg-white border-2 border-slate-300 focus:border-rose-600 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 shadow-xs transition-colors"
               />
             </div>
 
@@ -756,7 +756,7 @@ export default function BikeLightLanding() {
                 onChange={(e) => setCustPhone(e.target.value)}
                 placeholder="Ví dụ: 0912 345 678"
                 required
-                className="w-full bg-white border-1.5 border-slate-300 rounded-xl px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:border-rose-600"
+                className="w-full bg-white border-2 border-slate-300 focus:border-rose-600 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 shadow-xs transition-colors"
               />
             </div>
 
@@ -771,12 +771,12 @@ export default function BikeLightLanding() {
                 onChange={(e) => setCustAddress(e.target.value)}
                 placeholder="Số nhà, tên đường, phường/xã, quận/huyện, tỉnh thành"
                 required
-                className="w-full bg-white border-1.5 border-slate-300 rounded-xl px-3.5 py-2 text-sm text-slate-900 focus:outline-none focus:border-rose-600"
+                className="w-full bg-white border-2 border-slate-300 focus:border-rose-600 rounded-lg px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-rose-500/20 shadow-xs transition-colors"
               />
             </div>
 
             {/* Bảng tính tiền COD */}
-            <div className="bg-slate-50 border-1.5 border-dashed border-slate-300 rounded-xl p-3 text-xs space-y-1">
+            <div className="bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg p-3 text-xs space-y-1">
               <div className="flex justify-between text-slate-600">
                 <span>Tiền hàng:</span>
                 <strong className="text-slate-900">

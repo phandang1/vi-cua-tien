@@ -583,9 +583,19 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
   // 1. Thử lưu vào bảng `orders` của Supabase trước nếu bảng đã được tạo
   if (admin) {
     try {
+      const insertPayload: any = { ...newOrder };
+      const isUuid =
+        typeof insertPayload.id === "string" &&
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+          insertPayload.id
+        );
+      if (!isUuid) {
+        delete insertPayload.id;
+      }
+
       const { data, error } = await admin
         .from("orders")
-        .insert(newOrder)
+        .insert(insertPayload)
         .select()
         .single();
       if (!error && data) {
@@ -677,7 +687,7 @@ export async function getOrders(options?: {
       }
 
       const { data, error } = await query;
-      if (!error && data && Array.isArray(data)) {
+      if (!error && data && Array.isArray(data) && data.length > 0) {
         return data as Order[];
       }
     } catch (e) {
