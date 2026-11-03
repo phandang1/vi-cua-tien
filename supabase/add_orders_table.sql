@@ -1,8 +1,10 @@
 -- Tạo bảng Đơn hàng (orders) cho hệ thống landing page bán Đèn Xe Đạp
--- Copy và dán vào Supabase Dashboard -> SQL Editor -> Bấm RUN để thực thi
+-- Copy và dán toàn bộ nội dung này vào Supabase Dashboard -> SQL Editor -> Bấm RUN để thực thi
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE IF NOT EXISTS orders (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     order_code TEXT NOT NULL UNIQUE,
     customer_name TEXT NOT NULL,
     customer_phone TEXT NOT NULL,
@@ -14,7 +16,7 @@ CREATE TABLE IF NOT EXISTS orders (
     item_price NUMERIC NOT NULL DEFAULT 119000,
     shipping_fee NUMERIC DEFAULT 0,
     total_price NUMERIC NOT NULL DEFAULT 119000,
-    status TEXT DEFAULT 'pending', -- pending: Chờ xác nhận, confirmed: Đã gọi/xác nhận, shipping: Đang giao, delivered: Hoàn thành, cancelled: Hủy
+    status TEXT DEFAULT 'pending', -- pending: Chờ xác nhận, confirmed: Đã xác nhận, shipping: Đang giao, delivered: Hoàn thành, cancelled: Hủy
     note TEXT,
     created_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
     updated_at TIMESTAMPTZ DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
@@ -33,9 +35,9 @@ CREATE POLICY "Cho phep tao don hang moi"
 ON orders FOR INSERT
 WITH CHECK (true);
 
--- Cho phép Admin xem, cập nhật, xóa đơn hàng
-CREATE POLICY "Admin toan quyen quan ly don hang"
+-- Cho phép Admin và Service Role toàn quyền xem, sửa, xóa đơn
+CREATE POLICY "Toan quyen quan ly don hang"
 ON orders FOR ALL
-TO authenticated
 USING (true)
 WITH CHECK (true);
+
