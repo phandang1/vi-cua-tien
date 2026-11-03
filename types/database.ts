@@ -43,6 +43,29 @@ export interface SiteSettings {
   footer_text: string;
   popular_keywords?: string | null;
   updated_at?: string;
+  // Telegram notification settings
+  telegram_bot_token?: string;
+  telegram_chat_id?: string;
+  telegram_notify_enabled?: boolean;
+}
+
+export interface Order {
+  id: string;
+  order_code: string;
+  customer_name: string;
+  customer_phone: string;
+  customer_address: string;
+  combo_id: number;
+  combo_name: string;
+  color?: string;
+  product_name: string;
+  item_price: number;
+  shipping_fee: number;
+  total_price: number;
+  status: "pending" | "confirmed" | "shipping" | "delivered" | "cancelled";
+  note?: string;
+  created_at: string;
+  updated_at?: string;
 }
 
 export interface AffiliateClick {

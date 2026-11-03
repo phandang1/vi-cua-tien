@@ -1,6 +1,7 @@
 import Link from "next/link";
 import {
   LayoutDashboard,
+  ShoppingBag,
   Package,
   PlusCircle,
   FolderTree,
@@ -18,11 +19,12 @@ export default function AdminLayout({
 }) {
   const navItems = [
     { name: "Tổng quan", href: "/quanly", icon: LayoutDashboard },
+    { name: "Đơn hàng", href: "/quanly/orders", icon: ShoppingBag, highlight: true },
     { name: "Sản phẩm", href: "/quanly/products", icon: Package },
-    { name: "Thêm từ Shopee", href: "/quanly/products/new", icon: PlusCircle, highlight: true },
+    { name: "Thêm từ Shopee", href: "/quanly/products/new", icon: PlusCircle },
     { name: "Danh mục", href: "/quanly/categories", icon: FolderTree },
     { name: "Thống kê Clicks", href: "/quanly/analytics", icon: BarChart3 },
-    { name: "Cài đặt trang", href: "/quanly/settings", icon: Sliders },
+    { name: "Cài đặt & Telegram", href: "/quanly/settings", icon: Sliders },
   ];
 
   return (

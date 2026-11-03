@@ -9,17 +9,28 @@ import {
   PlusCircle,
   ExternalLink,
   ArrowRight,
+  ShoppingBag,
+  AlertCircle,
+  DollarSign,
 } from "lucide-react";
-import { getAnalyticsSummary, getProducts, getCategories } from "@/lib/db";
+import {
+  getAnalyticsSummary,
+  getProducts,
+  getCategories,
+  getOrderAnalyticsSummary,
+} from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
-  const [analytics, products, categories] = await Promise.all([
+  const [analytics, products, categories, orderStats] = await Promise.all([
     getAnalyticsSummary(),
     getProducts({ includeInactive: true }),
     getCategories(),
+    getOrderAnalyticsSummary(),
   ]);
+
+  const formatVND = (num: number) => (num || 0).toLocaleString("vi-VN") + "đ";
 
   return (
     <div className="space-y-8">
@@ -27,19 +38,44 @@ export default async function AdminDashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#FFFDF7] p-6 rounded-2xl border border-[#E2DAC5] shadow-xs">
         <div>
           <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[#27351E]">
-            Bảng điều khiển Vị Của Tiên
+            Bảng điều khiển Quản trị
           </h1>
           <p className="text-xs sm:text-sm text-[#27351E]/70 mt-1">
-            Theo dõi hiệu quả chuyển đổi affiliate và quản lý sản phẩm trên mini storefront.
+            Theo dõi đơn hàng từ Landing page Đèn Xe Đạp và quản lý sản phẩm affiliate.
           </p>
         </div>
 
+        <div className="flex items-center gap-2">
+          <Link
+            href="/quanly/orders"
+            className="inline-flex items-center justify-center gap-2 bg-[#e11d48] hover:bg-[#be123c] text-white px-5 py-3 rounded-xl font-bold text-sm shadow-md transition-all active:scale-95 shrink-0"
+          >
+            <ShoppingBag className="w-5 h-5" />
+            <span>Xem Đơn Hàng ({orderStats.totalOrders})</span>
+          </Link>
+        </div>
+      </div>
+
+      {/* Orders Summary Highlight Banner */}
+      <div className="bg-gradient-to-r from-rose-500 to-rose-600 rounded-2xl p-5 text-white shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <div className="inline-flex items-center gap-1.5 bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full text-xs font-bold">
+            <span className="w-2 h-2 rounded-full bg-yellow-300 animate-pulse"></span>
+            <span>ĐƠN HÀNG LANDING PAGE ĐÈN XE ĐẠP</span>
+          </div>
+          <h2 className="text-xl font-black">
+            {orderStats.todayOrders} Đơn mới hôm nay • {orderStats.pendingOrders} Đơn chờ xác nhận
+          </h2>
+          <p className="text-xs text-rose-100">
+            Tổng doanh số COD ước tính: <span className="font-bold text-yellow-200">{formatVND(orderStats.totalRevenue)}</span>
+          </p>
+        </div>
         <Link
-          href="/quanly/products/new"
-          className="inline-flex items-center justify-center gap-2 bg-[#EE4D2D] hover:bg-[#d73212] text-white px-5 py-3 rounded-xl font-medium text-sm shadow-md transition-all active:scale-95 shrink-0"
+          href="/quanly/orders"
+          className="inline-flex items-center justify-center gap-1.5 bg-white text-rose-700 hover:bg-rose-50 px-4 py-2.5 rounded-xl font-bold text-xs shadow-xs transition-colors shrink-0"
         >
-          <PlusCircle className="w-5 h-5" />
-          <span>Thêm nhanh sản phẩm Shopee</span>
+          <span>Quản lý đơn ngay</span>
+          <ArrowRight className="w-4 h-4" />
         </Link>
       </div>
 

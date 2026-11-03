@@ -1,0 +1,117 @@
+import { NextRequest, NextResponse } from "next/server";
+import { saveOrder, getSiteSettings } from "@/lib/db";
+import { sendOrderTelegramAlert } from "@/lib/telegram";
+
+export const dynamic = "force-dynamic";
+
+export async function POST(request: NextRequest) {
+  try {
+    const body = await request.json();
+
+    const customer_name = (body.customer_name || body.name || "").trim();
+    const customer_phone = (body.customer_phone || body.phone || "").trim();
+    const customer_address = (
+      body.customer_address ||
+      body.address ||
+      ""
+    ).trim();
+
+    if (!customer_name) {
+      return NextResponse.json(
+        { success: false, error: "Vui lòng nhập họ và tên nhận hàng" },
+        { status: 400 }
+      );
+    }
+    if (!customer_phone) {
+      return NextResponse.json(
+        { success: false, error: "Vui lòng nhập số điện thoại nhận hàng" },
+        { status: 400 }
+      );
+    }
+    if (!customer_address) {
+      return NextResponse.json(
+        { success: false, error: "Vui lòng nhập địa chỉ nhận hàng chi tiết" },
+        { status: 400 }
+      );
+    }
+
+    const combo_id = Number(body.combo_id) || 1;
+    let combo_name = body.combo_name || "";
+    let item_price = Number(body.item_price) || 0;
+    let shipping_fee = Number(body.shipping_fee) || 0;
+    let total_price = Number(body.total_price) || 0;
+
+    // Chuẩn hóa giá trị combo theo chuẩn nếu chưa truyền đúng
+    const comboConfigs: Record<
+      number,
+      { name: string; price: number; ship: number; total: number }
+    > = {
+      1: {
+        name: "1 Cái Đèn T6 (119K)",
+        price: 119000,
+        ship: 25000,
+        total: 144000,
+      },
+      2: {
+        name: "Combo 2 Cái (199K - Miễn Ship)",
+        price: 199000,
+        ship: 0,
+        total: 199000,
+      },
+      3: {
+        name: "Combo 3 Cái (289K - Miễn Ship + Quà)",
+        price: 289000,
+        ship: 0,
+        total: 289000,
+      },
+    };
+
+    if (comboConfigs[combo_id]) {
+      const cfg = comboConfigs[combo_id];
+      if (!combo_name) combo_name = cfg.name;
+      if (!item_price) item_price = cfg.price;
+      if (shipping_fee === undefined || shipping_fee === null)
+        shipping_fee = cfg.ship;
+      if (!total_price) total_price = cfg.total;
+    }
+
+    const order = await saveOrder({
+      order_code: body.order_code,
+      customer_name,
+      customer_phone,
+      customer_address,
+      combo_id,
+      combo_name: combo_name || "Đèn Xe Đạp T6",
+      color: body.color || "Đen Tuyền",
+      product_name: "Đèn Xe Đạp Có Còi Pin Sạc USB LED T6 Chống Nước IP44",
+      item_price,
+      shipping_fee,
+      total_price,
+      status: "pending",
+      note: (body.note || "").trim(),
+    });
+
+    // Gửi thông báo Telegram (chạy nền, không làm chậm phản hồi của khách hàng)
+    getSiteSettings()
+      .then((settings) => {
+        if (settings && settings.telegram_notify_enabled) {
+          return sendOrderTelegramAlert(order, settings);
+        }
+      })
+      .catch((err) => {
+        console.warn("Lỗi gửi thông báo Telegram nền:", err);
+      });
+
+    return NextResponse.json({
+      success: true,
+      message: "Đặt hàng thành công!",
+      order,
+    });
+  } catch (error: any) {
+    console.error("Lỗi tạo đơn hàng:", error);
+    return NextResponse.json(
+      { success: false, error: error.message || "Lỗi xử lý đơn hàng" },
+      { status: 500 }
+    );
+  }
+}
