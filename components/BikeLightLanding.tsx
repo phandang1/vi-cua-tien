@@ -120,14 +120,14 @@ export default function BikeLightLanding() {
   };
 
   // 3. Form Order state
-  const [selectedCombo, setSelectedCombo] = useState<number>(2);
+  const [selectedCombo, setSelectedCombo] = useState<number>(1);
   const [custName, setCustName] = useState("");
   const [custPhone, setCustPhone] = useState("");
   const [custAddress, setCustAddress] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<any | null>(null);
 
-  const currentCombo = COMBO_CONFIG[selectedCombo] || COMBO_CONFIG[2];
+  const currentCombo = COMBO_CONFIG[selectedCombo] || COMBO_CONFIG[1];
 
   const scrollToOrder = (comboId?: number) => {
     if (comboId) setSelectedCombo(comboId);
@@ -227,7 +227,7 @@ export default function BikeLightLanding() {
     setCustName("");
     setCustPhone("");
     setCustAddress("");
-    setSelectedCombo(2);
+    setSelectedCombo(1);
   };
 
   // 4. Live order toasts
@@ -1005,7 +1005,7 @@ export default function BikeLightLanding() {
             </div>
           </div>
           <button
-            onClick={() => scrollToOrder(2)}
+            onClick={() => scrollToOrder(1)}
             className="bg-gradient-to-r from-rose-500 to-rose-600 text-white font-black text-xs uppercase px-5 py-2.5 rounded-full shadow-md shadow-rose-500/25 active:scale-95 transition-all"
           >
             MUA NGAY ⚡
