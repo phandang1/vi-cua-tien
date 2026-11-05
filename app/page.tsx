@@ -1,24 +1,24 @@
 import type { Metadata } from "next";
-import BikeLightLanding from "@/components/BikeLightLanding";
+import MoNeoDatLanding from "@/components/MoNeoDatLanding";
 
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Đèn Xe Đạp Có Còi Pin Sạc USB LED T6 Chống Nước IP44 — BIKE PRO",
+  title: "Mỏ Neo Đất NDM-10 - Chịu Lực Kéo Tới 450kg, Độ Bền Trên 10 Năm",
   description:
-    "Đèn xe đạp thể thao bóng LED T6 siêu sáng 250 Lumens tích hợp còi 140dB nút bấm rời 30cm, pin sạc 1200mAh USB, chống nước IP44. Kiểm tra hàng trước khi thanh toán COD.",
+    "Mỏ neo đất NDM-10 thép hợp kim đúc đặc mạ kẽm chịu tải 450kg/điểm, tự khóa 90 độ, không cần đổ bê tông. Căng giàn leo, mái che, giữ cáp chống bão. Độ bền trên 10 năm.",
   openGraph: {
-    title: "Đèn Xe Đạp Có Còi Pin Sạc USB LED T6 Chống Nước IP44",
+    title: "Mỏ Neo Đất NDM-10 - Chịu Lực Kéo Tới 450kg, Độ Bền Trên 10 Năm",
     description:
-      "Bóng LED T6 250LM • Còi 140dB • Pin sạc USB 1200mAh • Chống nước IP44. Giá sốc hôm nay chỉ 119K!",
-    images: ["/assets/images/hero_product.png"],
+      "Thép hợp kim đúc mạ kẽm • Tải trọng 450kg/điểm • Tự khóa 90 độ ngậm đất • Độ bền >10 năm. Ưu đãi giảm 35% hôm nay!",
+    images: ["/assets/images_neo/hero_neo.jpg"],
   },
 };
 
 export default function HomePage() {
   return (
     <main>
-      <BikeLightLanding />
+      <MoNeoDatLanding />
     </main>
   );
 }

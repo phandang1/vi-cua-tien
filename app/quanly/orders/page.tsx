@@ -290,7 +290,7 @@ Tiền thu hộ COD: ${(order.total_price || 0).toLocaleString("vi-VN")}đ`;
               Chưa có đơn hàng nào
             </div>
             <p className="text-xs text-slate-400 mt-1 max-w-sm mx-auto">
-              Khi khách hàng điền form đặt mua trên Landing Page Đèn Xe Đạp, đơn sẽ lập tức xuất hiện tại đây và báo về Telegram!
+              Khi khách hàng điền form đặt mua trên Landing Page, đơn sẽ lập tức xuất hiện tại đây và báo về Telegram!
             </p>
           </div>
         ) : (
@@ -369,8 +369,13 @@ Tiền thu hộ COD: ${(order.total_price || 0).toLocaleString("vi-VN")}đ`;
                         <div className="font-bold text-slate-800">
                           {order.combo_name}
                         </div>
-                        <div className="text-[11px] text-slate-500 mt-0.5">
-                          Màu: <span className="font-semibold text-slate-700">{order.color || "Đen Tuyền"}</span>
+                        <div className="text-[11px] text-slate-500 mt-0.5 space-y-0.5">
+                          {order.product_name && (
+                            <div className="text-slate-600 font-medium line-clamp-1">{order.product_name}</div>
+                          )}
+                          <div>
+                            {order.color ? `Phân loại: ${order.color}` : "Đen Tuyền"}
+                          </div>
                         </div>
                       </td>
 

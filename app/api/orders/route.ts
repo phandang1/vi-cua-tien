@@ -64,6 +64,24 @@ export async function POST(request: NextRequest) {
         ship: 0,
         total: 289000,
       },
+      5: {
+        name: "Gói 5 Cái Mỏ Neo Đất",
+        price: 170000,
+        ship: 20000,
+        total: 190000,
+      },
+      10: {
+        name: "Combo 10 Cái Mỏ Neo Đất (Freeship)",
+        price: 299000,
+        ship: 0,
+        total: 299000,
+      },
+      20: {
+        name: "Combo 20 Cái Mỏ Neo Đất (Freeship)",
+        price: 499000,
+        ship: 0,
+        total: 499000,
+      },
     };
 
     if (comboConfigs[combo_id]) {
@@ -81,9 +99,13 @@ export async function POST(request: NextRequest) {
       customer_phone,
       customer_address,
       combo_id,
-      combo_name: combo_name || "Đèn Xe Đạp T6",
-      color: body.color || "Đen Tuyền",
-      product_name: "Đèn Xe Đạp Có Còi Pin Sạc USB LED T6 Chống Nước IP44",
+      combo_name: combo_name || body.combo_name || "Mỏ Neo Đất NDM-10",
+      color: body.color || "Thép Mạ Kẽm",
+      product_name:
+        body.product_name ||
+        (combo_id >= 5
+          ? "Mỏ Neo Đất NDM-10 Chịu Tải 450kg"
+          : "Đèn Xe Đạp Có Còi Pin Sạc USB LED T6 Chống Nước IP44"),
       item_price,
       shipping_fee,
       total_price,

@@ -126,7 +126,7 @@ export async function sendOrderTelegramAlert(
 📍 <b>Địa chỉ:</b> ${escapeHtml(order.customer_address)}
 ━━━━━━━━━━━━━━━━━━━━
 📦 <b>Gói đặt:</b> <b>${escapeHtml(order.combo_name)}</b>
-🎨 <b>Màu sắc:</b> ${escapeHtml(order.color || "Đen Tuyền")}
+${order.product_name ? `🏷️ <b>Sản phẩm:</b> ${escapeHtml(order.product_name)}\n` : ""}🎨 <b>Phân loại:</b> ${escapeHtml(order.color || "Tiêu chuẩn")}
 💵 <b>Tiền hàng:</b> ${formatVND(order.item_price)}
 🚚 <b>Phí vận chuyển:</b> ${
     order.shipping_fee > 0 ? formatVND(order.shipping_fee) : "MIỄN PHÍ"
