@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveOrder, getSiteSettings } from "@/lib/db";
 import { sendOrderTelegramAlert } from "@/lib/telegram";
+import { sendMetaCapiPurchase } from "@/lib/meta-capi";
 
 export const dynamic = "force-dynamic";
 
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
       note: (body.note || "").trim(),
     });
 
-    // Gửi thông báo Telegram (chạy nền, không làm chậm phản hồi của khách hàng)
+    // 1. Gửi thông báo Telegram (chạy nền, không làm chậm phản hồi của khách hàng)
     getSiteSettings()
       .then((settings) => {
         if (settings && settings.telegram_notify_enabled) {
@@ -123,6 +124,26 @@ export async function POST(request: NextRequest) {
       .catch((err) => {
         console.warn("Lỗi gửi thông báo Telegram nền:", err);
       });
+
+    // 2. Gửi sự kiện Purchase về Meta Conversions API (CAPI) chạy nền, đảm bảo Deduplication với Pixel
+    const forwarded = request.headers.get("x-forwarded-for");
+    const clientIp = forwarded ? forwarded.split(",")[0].trim() : request.headers.get("x-real-ip");
+    const userAgent = request.headers.get("user-agent");
+    const referer = request.headers.get("referer");
+    const fbp = body.fbp || request.cookies.get("_fbp")?.value;
+    const fbc = body.fbc || request.cookies.get("_fbc")?.value;
+    const testEventCode = body.test_event_code || request.headers.get("x-meta-test-code");
+
+    sendMetaCapiPurchase(order, {
+      clientIp,
+      userAgent,
+      fbp,
+      fbc,
+      referer,
+      testEventCode,
+    }).catch((err) => {
+      console.warn("Lỗi gửi Meta CAPI nền:", err);
+    });
 
     return NextResponse.json({
       success: true,

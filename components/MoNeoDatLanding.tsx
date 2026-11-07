@@ -126,22 +126,91 @@ export default function MoNeoDatLanding() {
   // 4. Sticky bar visibility
   const [isStickyHidden, setIsStickyHidden] = useState(false);
 
+  // Meta Pixel Tracking: ViewContent (25% hoặc >6s), Scroll_50, Scroll_90
+  const firedScrollEvents = useRef({
+    viewContent: false,
+    scroll50: false,
+    scroll90: false,
+  });
+
   useEffect(() => {
-    const handleScroll = () => {
+    // 1. Timer dự phòng: nếu khách ở lại trang > 6 giây mà chưa kịp cuộn, vẫn ghi nhận ViewContent thật
+    const timeOnPageTimer = setTimeout(() => {
+      if (!firedScrollEvents.current.viewContent && typeof (window as any).fbq === "function") {
+        firedScrollEvents.current.viewContent = true;
+        (window as any).fbq("track", "ViewContent", {
+          content_name: "Mỏ Neo Đất NDM-10",
+          content_category: "Nông nghiệp & Nhà vườn",
+          content_type: "product",
+          value: 299000,
+          currency: "VND",
+        });
+      }
+    }, 6000);
+
+    // 2. Lắng nghe cuộn trang
+    const handleScrollTracking = () => {
+      // Sticky bar check
       const orderFormEl = document.getElementById("orderForm");
-      if (!orderFormEl) return;
-      const rect = orderFormEl.getBoundingClientRect();
-      const vh = window.innerHeight || document.documentElement.clientHeight;
-      const isViewing = rect.top < vh - 50 && rect.bottom > 80;
-      setIsStickyHidden(isViewing);
+      if (orderFormEl) {
+        const rect = orderFormEl.getBoundingClientRect();
+        const vh = window.innerHeight || document.documentElement.clientHeight;
+        const isViewing = rect.top < vh - 50 && rect.bottom > 80;
+        setIsStickyHidden(isViewing);
+      }
+
+      // Scroll depth percentage calculation
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight <= 0) return;
+
+      const percent = (scrollY / totalHeight) * 100;
+
+      // Mốc 1: 25% -> ViewContent chuẩn Meta
+      if (percent >= 25 && !firedScrollEvents.current.viewContent) {
+        firedScrollEvents.current.viewContent = true;
+        if (typeof (window as any).fbq === "function") {
+          (window as any).fbq("track", "ViewContent", {
+            content_name: "Mỏ Neo Đất NDM-10",
+            content_category: "Nông nghiệp & Nhà vườn",
+            content_type: "product",
+            value: 299000,
+            currency: "VND",
+          });
+        }
+      }
+
+      // Mốc 2: 50% -> Scroll_50
+      if (percent >= 50 && !firedScrollEvents.current.scroll50) {
+        firedScrollEvents.current.scroll50 = true;
+        if (typeof (window as any).fbq === "function") {
+          (window as any).fbq("trackCustom", "Scroll_50", {
+            content_name: "Mỏ Neo Đất NDM-10",
+            percent: 50,
+          });
+        }
+      }
+
+      // Mốc 3: 80% -> Scroll_90 (Chạm tới Form đặt hàng)
+      if (percent >= 80 && !firedScrollEvents.current.scroll90) {
+        firedScrollEvents.current.scroll90 = true;
+        if (typeof (window as any).fbq === "function") {
+          (window as any).fbq("trackCustom", "Scroll_90", {
+            content_name: "Mỏ Neo Đất NDM-10",
+            percent: 90,
+          });
+        }
+      }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    window.addEventListener("resize", handleScroll, { passive: true });
-    handleScroll();
+    window.addEventListener("scroll", handleScrollTracking, { passive: true });
+    window.addEventListener("resize", handleScrollTracking, { passive: true });
+    handleScrollTracking();
+
     return () => {
-      window.removeEventListener("scroll", handleScroll);
-      window.removeEventListener("resize", handleScroll);
+      clearTimeout(timeOnPageTimer);
+      window.removeEventListener("scroll", handleScrollTracking);
+      window.removeEventListener("resize", handleScrollTracking);
     };
   }, []);
 
@@ -195,6 +264,12 @@ export default function MoNeoDatLanding() {
     setIsSubmitting(true);
     const orderCode = "NDM" + Math.floor(100000 + Math.random() * 900000);
 
+    // Lấy cookie _fbp và _fbc của Meta để tăng Event Match Quality
+    const fbpMatch = typeof document !== "undefined" ? document.cookie.match(/(^|;)\s*_fbp=([^;]+)/) : null;
+    const fbcMatch = typeof document !== "undefined" ? document.cookie.match(/(^|;)\s*_fbc=([^;]+)/) : null;
+    const fbp = fbpMatch ? decodeURIComponent(fbpMatch[2]) : undefined;
+    const fbc = fbcMatch ? decodeURIComponent(fbcMatch[2]) : undefined;
+
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -212,6 +287,8 @@ export default function MoNeoDatLanding() {
           shipping_fee: currentCombo.ship,
           total_price: currentCombo.total,
           note: "",
+          fbp,
+          fbc,
         }),
       });
 
@@ -229,15 +306,22 @@ export default function MoNeoDatLanding() {
         });
       }
 
-      // Meta Pixel: Bắn duy nhất sự kiện Purchase chuẩn Meta Ads
+      // Meta Pixel: Bắn duy nhất sự kiện Purchase chuẩn Meta Ads với eventID khử trùng lặp
       if (typeof (window as any).fbq === "function") {
-        (window as any).fbq("track", "Purchase", {
-          value: Number(currentCombo.total),
-          currency: "VND",
-          content_type: "product",
-          content_name: currentCombo.name,
-          num_items: Number(selectedCombo),
-        });
+        (window as any).fbq(
+          "track",
+          "Purchase",
+          {
+            value: Number(currentCombo.total),
+            currency: "VND",
+            content_type: "product",
+            content_name: currentCombo.name,
+            num_items: Number(selectedCombo),
+          },
+          {
+            eventID: orderCode, // ⭐ Đồng bộ 100% với event_id ở server
+          }
+        );
       }
     } catch (err) {
       console.error("Order submit error:", err);

@@ -119,6 +119,80 @@ export default function BikeLightLanding() {
     }
   };
 
+  // Meta Pixel Tracking: ViewContent (25% hoặc >6s), Scroll_50, Scroll_90
+  const firedScrollEvents = useRef({
+    viewContent: false,
+    scroll50: false,
+    scroll90: false,
+  });
+
+  useEffect(() => {
+    // 1. Timer: nếu khách xem trang > 6 giây
+    const timeOnPageTimer = setTimeout(() => {
+      if (!firedScrollEvents.current.viewContent && typeof (window as any).fbq === "function") {
+        firedScrollEvents.current.viewContent = true;
+        (window as any).fbq("track", "ViewContent", {
+          content_name: "Đèn Xe Đạp T6 Có Còi 140dB",
+          content_category: "Phụ kiện xe đạp",
+          content_type: "product",
+          value: 199000,
+          currency: "VND",
+        });
+      }
+    }, 6000);
+
+    // 2. Lắng nghe sự kiện cuộn
+    const handleScrollTracking = () => {
+      const scrollY = window.scrollY || document.documentElement.scrollTop;
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight <= 0) return;
+
+      const percent = (scrollY / totalHeight) * 100;
+
+      // Mốc 1: 25% -> ViewContent chuẩn Meta
+      if (percent >= 25 && !firedScrollEvents.current.viewContent) {
+        firedScrollEvents.current.viewContent = true;
+        if (typeof (window as any).fbq === "function") {
+          (window as any).fbq("track", "ViewContent", {
+            content_name: "Đèn Xe Đạp T6 Có Còi 140dB",
+            content_category: "Phụ kiện xe đạp",
+            content_type: "product",
+            value: 199000,
+            currency: "VND",
+          });
+        }
+      }
+
+      // Mốc 2: 50% -> Scroll_50
+      if (percent >= 50 && !firedScrollEvents.current.scroll50) {
+        firedScrollEvents.current.scroll50 = true;
+        if (typeof (window as any).fbq === "function") {
+          (window as any).fbq("trackCustom", "Scroll_50", {
+            content_name: "Đèn Xe Đạp T6 Có Còi 140dB",
+            percent: 50,
+          });
+        }
+      }
+
+      // Mốc 3: 80% -> Scroll_90 (Chạm tới Form đặt hàng)
+      if (percent >= 80 && !firedScrollEvents.current.scroll90) {
+        firedScrollEvents.current.scroll90 = true;
+        if (typeof (window as any).fbq === "function") {
+          (window as any).fbq("trackCustom", "Scroll_90", {
+            content_name: "Đèn Xe Đạp T6 Có Còi 140dB",
+            percent: 90,
+          });
+        }
+      }
+    };
+
+    window.addEventListener("scroll", handleScrollTracking, { passive: true });
+    return () => {
+      clearTimeout(timeOnPageTimer);
+      window.removeEventListener("scroll", handleScrollTracking);
+    };
+  }, []);
+
   // 3. Form Order state
   const [selectedCombo, setSelectedCombo] = useState<number>(1);
   const [custName, setCustName] = useState("");
@@ -164,6 +238,12 @@ export default function BikeLightLanding() {
     setIsSubmitting(true);
     const orderCode = "BP" + Math.floor(100000 + Math.random() * 900000);
 
+    // Lấy cookie _fbp và _fbc của Meta để tăng Event Match Quality
+    const fbpMatch = typeof document !== "undefined" ? document.cookie.match(/(^|;)\s*_fbp=([^;]+)/) : null;
+    const fbcMatch = typeof document !== "undefined" ? document.cookie.match(/(^|;)\s*_fbc=([^;]+)/) : null;
+    const fbp = fbpMatch ? decodeURIComponent(fbpMatch[2]) : undefined;
+    const fbc = fbcMatch ? decodeURIComponent(fbcMatch[2]) : undefined;
+
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -179,6 +259,8 @@ export default function BikeLightLanding() {
           item_price: currentCombo.price,
           shipping_fee: currentCombo.ship,
           total_price: currentCombo.total,
+          fbp,
+          fbc,
         }),
       });
 
@@ -197,14 +279,21 @@ export default function BikeLightLanding() {
         });
       }
 
-      // Meta Pixel Purchase Event
+      // Meta Pixel Purchase Event với eventID để Khử trùng lặp (Deduplication) với CAPI
       if (typeof (window as any).fbq === "function") {
-        (window as any).fbq("track", "Purchase", {
-          value: Number(currentCombo.total),
-          currency: "VND",
-          content_name: currentCombo.name,
-          num_items: Number(selectedCombo),
-        });
+        (window as any).fbq(
+          "track",
+          "Purchase",
+          {
+            value: Number(currentCombo.total),
+            currency: "VND",
+            content_name: currentCombo.name,
+            num_items: Number(selectedCombo),
+          },
+          {
+            eventID: orderCode, // ⭐ Đồng bộ 100% với event_id ở server
+          }
+        );
       }
     } catch (err) {
       console.error("Order submit error:", err);
