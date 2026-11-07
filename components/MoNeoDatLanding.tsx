@@ -5,64 +5,110 @@ import React, { useState, useEffect, useRef } from "react";
 const comboConfig: Record<
   number,
   {
+    id: number;
     name: string;
     label: string;
     price: number;
+    oldPrice: number;
     ship: number;
     total: number;
     shipText: string;
+    badge?: string;
+    reason?: string;
+    tagClass?: string;
   }
 > = {
   5: {
-    name: "Combo 5 Cái Mỏ Neo Đất",
-    label: "gói 5 cái",
+    id: 5,
+    name: "Combo 5 cái NEO-10",
+    label: "Gói 5 cái",
     price: 170000,
+    oldPrice: 225000,
     ship: 20000,
     total: 190000,
     shipText: "20.000đ",
+    reason: "Gói nhỏ dùng thử",
   },
   10: {
-    name: "Combo 10 Cái Mỏ Neo Đất (Freeship)",
-    label: "combo 10 cái",
+    id: 10,
+    name: "Combo 10 cái NEO-10",
+    label: "Combo 10 cái",
     price: 299000,
+    oldPrice: 450000,
     ship: 0,
     total: 299000,
-    shipText: "MIỄN PHÍ (0đ)",
+    shipText: "MIỄN PHÍ",
+    badge: "Khuyên dùng",
+    reason: "Freeship • Vừa đủ cả giàn",
+    tagClass: "bestseller",
   },
   20: {
-    name: "Combo 20 Cái Mỏ Neo Đất (Freeship)",
-    label: "combo 20 cái",
+    id: 20,
+    name: "Combo 20 cái NEO-10",
+    label: "Combo 20 cái",
     price: 499000,
+    oldPrice: 900000,
     ship: 0,
     total: 499000,
-    shipText: "MIỄN PHÍ (0đ)",
+    shipText: "MIỄN PHÍ",
+    badge: "Siêu tiết kiệm",
+    reason: "Freeship • Chỉ 24.9k/cái",
+    tagClass: "supersaver",
   },
 };
 
-const slides = [
-  { src: "/assets/images_neo/hero_neo.jpg", alt: "Mỏ neo đất NDM-10" },
-  { src: "/assets/images_neo/problem_sap_gian.jpg", alt: "Sập đổ giàn leo khi không neo cáp" },
-  { src: "/assets/images_neo/problem_mai_che_bat.jpg", alt: "Tốc lật bạt che mái hiên khi không neo cáp" },
-  { src: "/assets/images_neo/problem_cay_nghieng.jpg", alt: "Nghiêng ngả gãy cành cây ăn trái mùa giông" },
-  { src: "/assets/images_neo/neo_slide_4.jpg", alt: "Cơ chế ngậm đất tự khóa" },
-  { src: "/assets/images_neo/neo_slide_2.jpg", alt: "Kích thước và kết cấu thép" },
+type MediaSlide = {
+  type: "video" | "image";
+  src: string;
+  alt: string;
+  poster?: string;
+};
+
+const slides: MediaSlide[] = [
+  {
+    type: "video",
+    src: "/assets/images_neo/mo_neo_2.mp4",
+    alt: "Video thực tế mỏ neo đất NEO-10 chịu tải tới 450kg",
+    poster: "/assets/images_neo/hero_neo.jpg",
+  },
+  {
+    type: "image",
+    src: "/assets/images_neo/hero_neo.jpg",
+    alt: "Mỏ neo đất NEO-10 đúc đặc mạ kẽm",
+  },
+  {
+    type: "image",
+    src: "/assets/images_neo/problem_sap_gian.jpg",
+    alt: "Hậu quả sập đổ giàn leo khi không neo cáp chịu lực",
+  },
+  {
+    type: "image",
+    src: "/assets/images_neo/problem_mai_che_bat.jpg",
+    alt: "Tốc lật bạt che mái hiên nhà màng khi giông gió",
+  },
+  {
+    type: "image",
+    src: "/assets/images_neo/problem_cay_nghieng.jpg",
+    alt: "Nghiêng ngả gãy cành cây ăn trái mùa giông bão",
+  },
 ];
 
 const realOrders = [
-  { cust: "Anh Thắng (0982.***.418)", item: "Combo 20 cái NDM-10 (499K - Freeship)", time: "1 phút trước" },
-  { cust: "Chú Bảy (0915.***.892)", item: "Combo 10 cái NDM-10 (299K - Freeship)", time: "3 phút trước" },
-  { cust: "Anh Lâm - Đắk Nông (0903.***.115)", item: "Combo 20 cái NDM-10 (499K - Freeship)", time: "5 phút trước" },
-  { cust: "Anh Hùng - Bình Phước (0974.***.629)", item: "Combo 10 cái NDM-10 (299K - Freeship)", time: "8 phút trước" },
-  { cust: "Hợp tác xã Vĩnh Long (0942.***.338)", item: "Combo 20 cái NDM-10 (499K - Freeship)", time: "12 phút trước" },
+  { cust: "Anh Thắng (0982.***.418)", item: "Combo 20 cái NEO-10 (499K - Freeship)", time: "1 phút trước" },
+  { cust: "Chú Bảy Nông (0915.***.892)", item: "Combo 10 cái NEO-10 (299K - Freeship)", time: "3 phút trước" },
+  { cust: "Anh Lâm - Đắk Nông (0903.***.115)", item: "Combo 20 cái NEO-10 (499K - Freeship)", time: "5 phút trước" },
+  { cust: "Anh Hùng - Bình Phước (0974.***.629)", item: "Combo 10 cái NEO-10 (299K - Freeship)", time: "8 phút trước" },
+  { cust: "Hợp tác xã Vĩnh Long (0942.***.338)", item: "Combo 20 cái NEO-10 (499K - Freeship)", time: "12 phút trước" },
+  { cust: "Bác Ba Vườn Bưởi (0938.***.721)", item: "Combo 10 cái NEO-10 (299K - Freeship)", time: "15 phút trước" },
 ];
 
 export default function MoNeoDatLanding() {
-  // 1. Countdown timer
-  const [remainingSeconds, setRemainingSeconds] = useState(2 * 3600 + 45 * 60 + 18);
+  // 1. Countdown timer (8 tiếng)
+  const [remainingSeconds, setRemainingSeconds] = useState(7 * 3600 + 58 * 60 + 42);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setRemainingSeconds((prev) => (prev <= 1 ? 3 * 3600 : prev - 1));
+      setRemainingSeconds((prev) => (prev <= 1 ? 8 * 3600 : prev - 1));
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -71,15 +117,45 @@ export default function MoNeoDatLanding() {
   const minutes = String(Math.floor((remainingSeconds % 3600) / 60)).padStart(2, "0");
   const seconds = String(remainingSeconds % 60).padStart(2, "0");
 
-  // 2. Slider
+  // 2. Slider & Video state
   const [currentSlide, setCurrentSlide] = useState(0);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const [isMuted, setIsMuted] = useState(true);
 
+  // Điều khiển phát/dừng video khi chuyển slide
   useEffect(() => {
+    if (currentSlide === 0) {
+      if (videoRef.current) {
+        videoRef.current.play().catch(() => {});
+      }
+    } else {
+      if (videoRef.current) {
+        videoRef.current.pause();
+      }
+    }
+  }, [currentSlide]);
+
+  const toggleSound = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      const nextMuted = !videoRef.current.muted;
+      videoRef.current.muted = nextMuted;
+      setIsMuted(nextMuted);
+      if (!nextMuted) {
+        videoRef.current.play().catch(() => {});
+      }
+    }
+  };
+
+  // Tự động chuyển slide (chỉ chuyển khi không ở slide video)
+  useEffect(() => {
+    if (currentSlide === 0) return;
+
     const slideTimer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 4500);
+    }, 5500);
     return () => clearInterval(slideTimer);
-  }, []);
+  }, [currentSlide]);
 
   const goToSlide = (idx: number) => {
     if (idx < 0) idx = slides.length - 1;
@@ -102,19 +178,23 @@ export default function MoNeoDatLanding() {
     }
   };
 
-  // 3. Form Order state
+  // 3. Form Order state & Combo selection
   const [selectedCombo, setSelectedCombo] = useState<number>(10);
+  const [orderQuantity, setOrderQuantity] = useState<number>(1);
   const [custName, setCustName] = useState("");
   const [custPhone, setCustPhone] = useState("");
   const [custAddress, setCustAddress] = useState("");
+  const [orderNote, setOrderNote] = useState("");
+  const [phoneError, setPhoneError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<any | null>(null);
 
   const currentCombo = comboConfig[selectedCombo] || comboConfig[10];
+  const calculatedTotal = currentCombo.price * orderQuantity + (currentCombo.ship > 0 ? currentCombo.ship : 0);
 
   const scrollToOrder = (comboKey?: number) => {
     if (comboKey) setSelectedCombo(comboKey);
-    const target = document.getElementById("orderForm");
+    const target = document.getElementById("order-section");
     if (target) {
       target.scrollIntoView({ behavior: "smooth" });
     }
@@ -134,12 +214,11 @@ export default function MoNeoDatLanding() {
   });
 
   useEffect(() => {
-    // 1. Timer dự phòng: nếu khách ở lại trang > 6 giây mà chưa kịp cuộn, vẫn ghi nhận ViewContent thật
     const timeOnPageTimer = setTimeout(() => {
       if (!firedScrollEvents.current.viewContent && typeof (window as any).fbq === "function") {
         firedScrollEvents.current.viewContent = true;
         (window as any).fbq("track", "ViewContent", {
-          content_name: "Mỏ Neo Đất NDM-10",
+          content_name: "Mỏ Neo Đất NEO-10",
           content_category: "Nông nghiệp & Nhà vườn",
           content_type: "product",
           value: 299000,
@@ -148,30 +227,26 @@ export default function MoNeoDatLanding() {
       }
     }, 6000);
 
-    // 2. Lắng nghe cuộn trang
     const handleScrollTracking = () => {
-      // Sticky bar check
-      const orderFormEl = document.getElementById("orderForm");
+      const orderFormEl = document.getElementById("order-section");
       if (orderFormEl) {
         const rect = orderFormEl.getBoundingClientRect();
         const vh = window.innerHeight || document.documentElement.clientHeight;
-        const isViewing = rect.top < vh - 50 && rect.bottom > 80;
+        const isViewing = rect.top < vh - 60 && rect.bottom > 80;
         setIsStickyHidden(isViewing);
       }
 
-      // Scroll depth percentage calculation
       const scrollY = window.scrollY || document.documentElement.scrollTop;
       const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
       if (totalHeight <= 0) return;
 
       const percent = (scrollY / totalHeight) * 100;
 
-      // Mốc 1: 25% -> ViewContent chuẩn Meta
       if (percent >= 25 && !firedScrollEvents.current.viewContent) {
         firedScrollEvents.current.viewContent = true;
         if (typeof (window as any).fbq === "function") {
           (window as any).fbq("track", "ViewContent", {
-            content_name: "Mỏ Neo Đất NDM-10",
+            content_name: "Mỏ Neo Đất NEO-10",
             content_category: "Nông nghiệp & Nhà vườn",
             content_type: "product",
             value: 299000,
@@ -180,23 +255,21 @@ export default function MoNeoDatLanding() {
         }
       }
 
-      // Mốc 2: 50% -> Scroll_50
       if (percent >= 50 && !firedScrollEvents.current.scroll50) {
         firedScrollEvents.current.scroll50 = true;
         if (typeof (window as any).fbq === "function") {
           (window as any).fbq("trackCustom", "Scroll_50", {
-            content_name: "Mỏ Neo Đất NDM-10",
+            content_name: "Mỏ Neo Đất NEO-10",
             percent: 50,
           });
         }
       }
 
-      // Mốc 3: 80% -> Scroll_90 (Chạm tới Form đặt hàng)
       if (percent >= 80 && !firedScrollEvents.current.scroll90) {
         firedScrollEvents.current.scroll90 = true;
         if (typeof (window as any).fbq === "function") {
           (window as any).fbq("trackCustom", "Scroll_90", {
-            content_name: "Mỏ Neo Đất NDM-10",
+            content_name: "Mỏ Neo Đất NEO-10",
             percent: 90,
           });
         }
@@ -214,7 +287,7 @@ export default function MoNeoDatLanding() {
     };
   }, []);
 
-  // Lưu vết fbclid từ Facebook Ads vào sessionStorage
+  // Lưu vết fbclid
   useEffect(() => {
     if (typeof window !== "undefined") {
       try {
@@ -228,7 +301,7 @@ export default function MoNeoDatLanding() {
   }, []);
 
   // 5. FAQ Accordion
-  const [openFaq, setOpenFaq] = useState<Record<number, boolean>>({ 0: true });
+  const [openFaq, setOpenFaq] = useState<Record<number, boolean>>({ 0: true, 1: false, 2: false, 3: false });
   const toggleFaq = (idx: number) => {
     setOpenFaq((prev) => ({ ...prev, [idx]: !prev[idx] }));
   };
@@ -246,7 +319,7 @@ export default function MoNeoDatLanding() {
         setToastIdx((prev) => (prev + 1) % realOrders.length);
         setShowToast(true);
         setTimeout(() => setShowToast(false), 4500);
-      }, 9000);
+      }, 9500);
 
       return () => {
         clearTimeout(hideTimeout);
@@ -258,6 +331,14 @@ export default function MoNeoDatLanding() {
   }, []);
 
   // 7. Form Submission
+  const validatePhone = (val: string) => {
+    const clean = val.replace(/\D/g, "");
+    if (!clean) return "Vui lòng nhập số điện thoại nhận hàng!";
+    if (clean.length !== 10) return "Vui lòng nhập đúng số điện thoại di động gồm 10 chữ số.";
+    if (!/^0(3|5|7|8|9)/.test(clean)) return "Số điện thoại di động không hợp lệ (cần bắt đầu bằng 03, 05, 07, 08, 09).";
+    return "";
+  };
+
   const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -265,25 +346,30 @@ export default function MoNeoDatLanding() {
       alert("Vui lòng nhập họ và tên của bạn!");
       return;
     }
-    if (!custPhone.trim()) {
-      alert("Vui lòng nhập số điện thoại nhận hàng!");
+
+    const pErr = validatePhone(custPhone);
+    if (pErr) {
+      setPhoneError(pErr);
+      const phoneInput = document.getElementById("phone-input");
+      if (phoneInput) phoneInput.focus();
       return;
     }
+    setPhoneError("");
+
     if (!custAddress.trim()) {
-      alert("Vui lòng nhập địa chỉ nhận hàng!");
+      alert("Vui lòng nhập địa chỉ nhận hàng để shop giao tận nơi!");
       return;
     }
 
     setIsSubmitting(true);
-    const orderCode = "NDM" + Math.floor(100000 + Math.random() * 900000);
+    const orderCode = "NEO" + Math.floor(100000 + Math.random() * 900000);
 
-    // Lấy cookie _fbp và _fbc của Meta để tăng Event Match Quality
+    // Meta Pixel CAPI data
     const fbpMatch = typeof document !== "undefined" ? document.cookie.match(/(^|;)\s*_fbp=([^;]+)/) : null;
     const fbcMatch = typeof document !== "undefined" ? document.cookie.match(/(^|;)\s*_fbc=([^;]+)/) : null;
     const fbp = fbpMatch ? decodeURIComponent(fbpMatch[2]) : undefined;
     const fbc = fbcMatch ? decodeURIComponent(fbcMatch[2]) : undefined;
 
-    // Lấy fbclid từ URL hoặc sessionStorage để nhận diện đơn hàng từ Facebook Ads
     let fbclid = "";
     if (typeof window !== "undefined") {
       try {
@@ -291,6 +377,8 @@ export default function MoNeoDatLanding() {
         fbclid = urlParams.get("fbclid") || sessionStorage.getItem("meta_fbclid") || "";
       } catch {}
     }
+
+    const payloadTotal = calculatedTotal;
 
     try {
       const res = await fetch("/api/orders", {
@@ -302,13 +390,13 @@ export default function MoNeoDatLanding() {
           customer_phone: custPhone.trim(),
           customer_address: custAddress.trim(),
           combo_id: selectedCombo,
-          combo_name: currentCombo.name,
-          product_name: "Mỏ Neo Đất NDM-10 - Chịu Lực Kéo 450kg",
-          color: "Thép Mạ Kẽm",
-          item_price: currentCombo.price,
+          combo_name: `${currentCombo.name} (SL: ${orderQuantity})`,
+          product_name: "Mỏ Neo Đất NEO-10 - Thép Hợp Kim Đúc Đặc Chịu Tải Tới 450kg (Tùy Chất Đất)",
+          color: "Thép Đúc Mạ Kẽm",
+          item_price: currentCombo.price * orderQuantity,
           shipping_fee: currentCombo.ship,
-          total_price: currentCombo.total,
-          note: "",
+          total_price: payloadTotal,
+          note: orderNote.trim(),
           fbp,
           fbc,
           fbclid: fbclid || undefined,
@@ -324,25 +412,26 @@ export default function MoNeoDatLanding() {
           customer_name: custName.trim(),
           customer_phone: custPhone.trim(),
           customer_address: custAddress.trim(),
-          combo_name: currentCombo.name,
-          total_price: currentCombo.total,
+          combo_name: `${currentCombo.name} (SL: ${orderQuantity})`,
+          total_price: payloadTotal,
+          shipping_fee: currentCombo.ship,
         });
       }
 
-      // Meta Pixel: Bắn duy nhất sự kiện Purchase chuẩn Meta Ads với eventID khử trùng lặp
+      // Meta Pixel Purchase
       if (typeof (window as any).fbq === "function") {
         (window as any).fbq(
           "track",
           "Purchase",
           {
-            value: Number(currentCombo.total),
+            value: Number(payloadTotal),
             currency: "VND",
             content_type: "product",
             content_name: currentCombo.name,
-            num_items: Number(selectedCombo),
+            num_items: Number(selectedCombo * orderQuantity),
           },
           {
-            eventID: orderCode, // ⭐ Đồng bộ 100% với event_id ở server
+            eventID: orderCode,
           }
         );
       }
@@ -353,8 +442,9 @@ export default function MoNeoDatLanding() {
         customer_name: custName.trim(),
         customer_phone: custPhone.trim(),
         customer_address: custAddress.trim(),
-        combo_name: currentCombo.name,
-        total_price: currentCombo.total,
+        combo_name: `${currentCombo.name} (SL: ${orderQuantity})`,
+        total_price: payloadTotal,
+        shipping_fee: currentCombo.ship,
       });
     } finally {
       setIsSubmitting(false);
@@ -366,36 +456,37 @@ export default function MoNeoDatLanding() {
     setCustName("");
     setCustPhone("");
     setCustAddress("");
+    setOrderNote("");
     setSelectedCombo(10);
+    setOrderQuantity(1);
   };
 
   const currentToast = realOrders[toastIdx];
 
   return (
-    <>
-      {/* 100% ORIGINAL STYLES PRESERVED */}
+    <div className="neo-page">
+      {/* GLOBAL & COMPONENT STYLES INSPIRED BY TINYKA ARCHITECTURE */}
       <style dangerouslySetInnerHTML={{ __html: `
         :root {
-          --primary: #15803d;
-          --primary-hover: #166534;
-          --primary-gradient: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
-          --accent-red: #dc2626;
-          --accent-red-hover: #b91c1c;
-          --accent-orange: #ea580c;
-          --dark: #0f172a;
-          --gray-50: #f8fafc;
-          --gray-100: #f1f5f9;
-          --gray-200: #e2e8f0;
-          --gray-300: #cbd5e1;
-          --gray-500: #64748b;
-          --gray-700: #334155;
-          --gray-900: #0f172a;
+          --paper: #fffaf5;
+          --white: #ffffff;
+          --cream: #fbf3ea;
+          --orange: #ea580c;
+          --orange-dark: #c2410c;
+          --cta-start: #dc2626;
+          --cta-end: #b91c1c;
+          --cta-shadow: #991b1b;
+          --green: #15803d;
+          --green-dark: #166534;
+          --green-bg: #f0fdf4;
+          --green-border: #bbf7d0;
+          --ink: #1e293b;
+          --muted: #64748b;
+          --line: rgba(30, 41, 59, 0.12);
           --radius-sm: 8px;
-          --radius-md: 12px;
+          --radius-md: 14px;
+          --radius-lg: 18px;
           --radius-full: 9999px;
-          --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-          --shadow-md: 0 4px 14px rgba(0,0,0,0.08);
-          --shadow-glow: 0 4px 16px rgba(220, 38, 38, 0.35);
         }
 
         .neo-page * {
@@ -408,7 +499,7 @@ export default function MoNeoDatLanding() {
 
         .neo-page {
           background-color: #f1f5f9;
-          color: var(--gray-900);
+          color: var(--ink);
           display: flex;
           justify-content: center;
           min-height: 100vh;
@@ -417,1006 +508,1672 @@ export default function MoNeoDatLanding() {
           -webkit-font-smoothing: antialiased;
         }
 
-        .mobile-app-wrapper {
+        .site-shell {
           width: 100%;
-          max-width: 440px;
-          background-color: #ffffff;
+          max-width: 460px;
+          background-color: var(--white);
           min-height: 100vh;
           position: relative;
-          box-shadow: 0 0 35px rgba(0,0,0,0.12);
+          box-shadow: 0 0 35px rgba(0, 0, 0, 0.08);
           padding-bottom: 76px;
           overflow-x: hidden;
         }
 
-        .top-banner {
-          background: linear-gradient(90deg, #15803d 0%, #16a34a 100%);
-          color: #ffffff;
-          text-align: center;
-          font-size: 13.5px;
-          font-weight: 800;
-          padding: 8px 10px;
-          letter-spacing: 0.2px;
+        /* 1. TOPBAR STICKY (CHUYỂN ĐỔI CAO) */
+        .topbar {
+          position: sticky;
+          top: 0;
+          z-index: 100;
+          height: 64px;
+          padding: 0 14px;
           display: flex;
           align-items: center;
-          justify-content: center;
-          gap: 6px;
-          white-space: nowrap;
+          justify-content: space-between;
+          background: #ffffff;
+          border-bottom: 1.5px solid #fed7aa;
+          box-shadow: 0 3px 14px rgba(234, 88, 12, 0.08);
         }
-        .top-banner .fire {
-          font-size: 15px;
+        .topbar-left {
+          display: inline-flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 3px;
+          cursor: pointer;
+          user-select: none;
+        }
+        .topbar-headline {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          font-size: 11.5px;
+          font-weight: 800;
+          color: #ea580c;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          line-height: 1;
+        }
+        .topbar-bolt {
+          font-size: 12px;
+          display: inline-block;
+          animation: bolt-pulse 1.6s ease-in-out infinite;
+        }
+        @keyframes bolt-pulse {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 1px #f97316); }
+          50% { transform: scale(1.22); filter: drop-shadow(0 0 5px #ea580c); }
+        }
+        .topbar-timer-wrap {
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+          font-variant-numeric: tabular-nums;
+        }
+        .topbar-digit {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 24px;
+          height: 22px;
+          padding: 0 4px;
+          background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
+          color: #ffffff;
+          border-radius: 4px;
+          font-size: 13px;
+          font-weight: 900;
+          line-height: 1;
+          box-shadow: 0 2px 4px rgba(185, 28, 28, 0.25);
+        }
+        .topbar-colon {
+          color: #dc2626;
+          font-weight: 900;
+          font-size: 13px;
+          line-height: 1;
+          margin: 0 1px;
+        }
+        .topbar-cta {
+          position: relative;
+          overflow: hidden;
+          padding: 8px 14px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 5px;
+          border-radius: 9999px;
+          background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+          color: #ffffff;
+          box-shadow: 0 3px 12px rgba(220, 38, 38, 0.35);
+          font-size: 12.5px;
+          font-weight: 800;
+          letter-spacing: 0.2px;
+          text-transform: uppercase;
+          white-space: nowrap;
+          border: none;
+          cursor: pointer;
+          animation: topbar-attention 2.4s ease-in-out infinite;
+        }
+        .topbar-cta svg {
+          width: 14px;
+          height: 14px;
+          fill: none;
+          stroke: currentColor;
+          stroke-width: 2.5;
+          stroke-linecap: round;
+          stroke-linejoin: round;
+          flex-shrink: 0;
+          transition: transform 0.2s ease;
+        }
+        .topbar-cta:active {
+          transform: scale(0.97);
+        }
+        .topbar-cta::after {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: -100%;
+          width: 50%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+          transform: skewX(-20deg);
+          animation: topbar-shimmer 2.8s infinite;
+        }
+        @keyframes topbar-shimmer {
+          0%, 35% { left: -100%; }
+          70%, 100% { left: 160%; }
+        }
+        @keyframes topbar-attention {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.03); box-shadow: 0 5px 16px rgba(220, 38, 38, 0.45); }
         }
 
-        .hero-slider-wrap {
+        /* 2. SECTION ALBUM */
+        .album {
+          background: #ffffff;
+          padding-bottom: 12px;
+        }
+        .album-stage {
           position: relative;
           width: 100%;
           aspect-ratio: 1 / 1;
-          background-color: #f8fafc;
+          background: #f8fafc;
           overflow: hidden;
+          user-select: none;
         }
-
-        .slider-track {
+        .album-track {
           display: flex;
           width: 100%;
           height: 100%;
-          transition: transform 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+          transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-
-        .slide-item {
+        .album-slide {
           min-width: 100%;
           height: 100%;
           position: relative;
         }
-
-        .slide-item img {
+        .album-slide img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           display: block;
         }
-
-        .slider-badge-top-left {
+        .album-video-wrap {
+          width: 100%;
+          height: 100%;
+          position: relative;
+          background: #000000;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .album-video-el {
+          width: 100%;
+          height: 100%;
+          object-fit: contain;
+          background: #000000;
+          display: block;
+        }
+        .video-sound-prompt {
           position: absolute;
-          top: 10px;
-          left: 10px;
+          bottom: 14px;
+          left: 14px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 7px 14px;
           background: rgba(15, 23, 42, 0.88);
+          backdrop-filter: blur(8px);
           color: #ffffff;
-          font-size: 12.5px;
+          border: 1.5px solid rgba(255, 255, 255, 0.35);
+          border-radius: var(--radius-full);
+          font-size: 12px;
+          font-weight: 800;
+          cursor: pointer;
+          z-index: 8;
+          box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+          animation: sound-prompt-pulse 2.2s ease-in-out infinite;
+        }
+        @keyframes sound-prompt-pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.05); border-color: #ea580c; color: #fed7aa; }
+        }
+        .video-sound-prompt svg {
+          width: 16px;
+          height: 16px;
+          fill: currentColor;
+        }
+        .album-badge-promo {
+          position: absolute;
+          top: 12px;
+          left: 12px;
+          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+          color: #ffffff;
+          font-size: 11.5px;
           font-weight: 800;
           padding: 4px 10px;
           border-radius: var(--radius-full);
-          backdrop-filter: blur(4px);
-          z-index: 5;
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          white-space: nowrap;
-        }
-        .slider-badge-top-right {
-          position: absolute;
-          top: 10px;
-          right: 10px;
-          background: var(--accent-red);
-          color: #ffffff;
-          font-size: 13px;
-          font-weight: 900;
-          padding: 4px 9px;
-          border-radius: var(--radius-sm);
-          z-index: 5;
           box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+          z-index: 5;
+          letter-spacing: 0.3px;
         }
-
-        .slider-nav-btn {
+        .album-badge-right {
+          position: absolute;
+          top: 12px;
+          right: 12px;
+          background: rgba(15, 23, 42, 0.75);
+          backdrop-filter: blur(4px);
+          color: #ffffff;
+          font-size: 11px;
+          font-weight: 700;
+          padding: 4px 9px;
+          border-radius: var(--radius-full);
+          z-index: 5;
+        }
+        .album-arrow {
           position: absolute;
           top: 50%;
           transform: translateY(-50%);
-          width: 36px;
-          height: 36px;
-          background: rgba(255, 255, 255, 0.95);
-          border: 1px solid var(--gray-200);
+          width: 38px;
+          height: 38px;
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(6px);
+          color: var(--ink);
+          border: 1px solid rgba(0,0,0,0.08);
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           font-size: 20px;
-          font-weight: 700;
-          color: var(--gray-700);
           cursor: pointer;
           z-index: 6;
-          box-shadow: var(--shadow-sm);
-          user-select: none;
+          box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+          transition: all 0.2s;
         }
-        .slider-nav-btn.prev { left: 10px; }
-        .slider-nav-btn.next { right: 10px; }
-
-        .slider-dots {
+        .album-arrow:active {
+          transform: translateY(-50%) scale(0.92);
+          background: #ffffff;
+        }
+        .album-arrow.previous { left: 10px; }
+        .album-arrow.next { right: 10px; }
+        .album-count {
           position: absolute;
           bottom: 12px;
-          left: 50%;
-          transform: translateX(-50%);
-          display: flex;
-          gap: 6px;
-          z-index: 6;
-        }
-        .dot {
-          width: 7px;
-          height: 7px;
-          border-radius: 50%;
-          background: rgba(255, 255, 255, 0.55);
-          transition: all 0.25s ease;
-          cursor: pointer;
-        }
-        .dot.active {
-          width: 20px;
-          border-radius: 4px;
-          background: #ffffff;
-          box-shadow: 0 1px 4px rgba(0,0,0,0.35);
+          right: 12px;
+          background: rgba(15, 23, 42, 0.75);
+          backdrop-filter: blur(4px);
+          color: #ffffff;
+          font-size: 12px;
+          font-weight: 700;
+          padding: 3px 9px;
+          border-radius: var(--radius-full);
+          z-index: 5;
         }
 
-        .thumbnails-row {
+        .album-thumbs {
           display: flex;
           gap: 8px;
-          padding: 8px 12px;
-          background: #ffffff;
+          padding: 10px 14px 4px;
           overflow-x: auto;
           scrollbar-width: none;
         }
-        .thumbnails-row::-webkit-scrollbar { display: none; }
-        .thumb-btn {
-          flex: 0 0 56px;
-          height: 56px;
-          border-radius: 6px;
+        .album-thumbs::-webkit-scrollbar { display: none; }
+        .album-thumb {
+          flex: 0 0 58px;
+          height: 58px;
+          border-radius: var(--radius-sm);
           overflow: hidden;
-          border: 2px solid transparent;
+          border: 2px solid #e2e8f0;
           cursor: pointer;
-          background: #f1f5f9;
+          background: #f8fafc;
+          transition: all 0.2s;
         }
-        .thumb-btn.active {
-          border-color: var(--primary);
+        .album-thumb.active {
+          border-color: var(--green);
+          box-shadow: 0 0 0 2px rgba(21, 128, 61, 0.25);
+          transform: scale(1.03);
         }
-        .thumb-btn img {
+        .album-thumb.thumb-video {
+          position: relative;
+        }
+        .thumb-video-content {
+          width: 100%;
+          height: 100%;
+          position: relative;
+        }
+        .thumb-video-badge {
+          position: absolute;
+          inset: 0;
+          background: rgba(15, 23, 42, 0.55);
+          color: #ffffff;
+          font-size: 10px;
+          font-weight: 900;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 2px;
+          text-transform: uppercase;
+          letter-spacing: 0.2px;
+        }
+        .album-thumb img {
           width: 100%;
           height: 100%;
           object-fit: cover;
           display: block;
         }
 
-        .flashsale-bar {
-          background: #fff1f2;
-          border-top: 1px solid #ffe4e6;
-          border-bottom: 1px solid #ffe4e6;
-          padding: 9px 12px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          flex-wrap: nowrap;
-          gap: 6px;
-        }
-        .flashsale-left {
-          font-weight: 900;
-          color: #b91c1c;
-          font-size: 14px;
-          text-transform: uppercase;
-          display: flex;
-          align-items: center;
-          gap: 5px;
-          white-space: nowrap;
-        }
-        .flashsale-timer {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          font-size: 13.5px;
-          font-weight: 800;
-          color: #991b1b;
-          white-space: nowrap;
-        }
-        .flashsale-timer span {
-          font-weight: 600;
-          font-size: 12.5px;
-          color: #7f1d1d;
-        }
-        .time-box {
-          background: #991b1b;
-          color: #ffffff;
-          font-weight: 900;
-          font-size: 13px;
-          padding: 2px 6px;
-          border-radius: 4px;
-          min-width: 24px;
-          text-align: center;
-        }
-
-        .stock-meter-wrap {
-          padding: 10px 14px 6px;
-          background: #ffffff;
-        }
-        .stock-line-text {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 12.5px;
-          margin-bottom: 5px;
-          white-space: nowrap;
-        }
-        .stock-bar-bg {
-          width: 100%;
-          height: 8px;
-          background: #e2e8f0;
-          border-radius: 5px;
-          overflow: hidden;
-        }
-        .stock-bar-fill {
-          width: 78%;
-          height: 100%;
-          background: linear-gradient(90deg, #f97316 0%, #ef4444 100%);
-          border-radius: 5px;
-        }
-
-        .product-main-info {
-          padding: 14px 14px 18px;
-          background: #fff;
+        /* 3. SECTION PRODUCT SUMMARY (TINYKA STYLE) */
+        .product-summary {
+          padding: 18px 18px 26px;
+          background: var(--paper);
           border-bottom: 8px solid #f1f5f9;
         }
         .product-title {
-          font-size: 19.5px;
+          font-size: 21px;
           font-weight: 900;
-          color: var(--gray-900);
           line-height: 1.35;
-          margin-bottom: 6px;
+          color: var(--ink);
+          margin-bottom: 8px;
         }
-        .product-subtitle {
-          font-size: 13px;
-          color: #15803d;
-          font-weight: 700;
+        .product-rating-row {
           display: flex;
-          align-items: center;
-          gap: 6px;
-          margin-bottom: 10px;
           flex-wrap: wrap;
+          align-items: center;
+          gap: 6px 8px;
+          margin-bottom: 14px;
+          font-size: 13px;
+          line-height: 1.3;
         }
-        .rating-row {
-          display: flex;
+        .rating-stars-wrap {
+          display: inline-flex;
           align-items: center;
           gap: 6px;
-          font-size: 13.5px;
-          color: var(--gray-700);
-          margin-bottom: 12px;
           white-space: nowrap;
+          flex-shrink: 0;
         }
-        .stars {
+        .product-rating-row .stars {
           color: #f59e0b;
-          letter-spacing: -1px;
           font-size: 14px;
-        }
-        .rating-score {
-          font-weight: 800;
-          color: #b45309;
-          background: #fef3c7;
-          padding: 2px 7px;
-          border-radius: 4px;
-          font-size: 13px;
-        }
-
-        .price-box {
-          background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
-          border: 1.5px solid #86efac;
-          border-radius: var(--radius-md);
-          padding: 12px 14px;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 14px;
-        }
-        .price-current-wrap {
-          display: flex;
-          align-items: baseline;
-          gap: 4px;
-        }
-        .price-current {
-          font-size: 26px;
-          font-weight: 900;
-          color: #b91c1c;
+          letter-spacing: 1px;
           line-height: 1;
         }
-        .price-unit {
-          font-size: 14px;
-          font-weight: 700;
-          color: #15803d;
+        .product-rating-row .score {
+          font-weight: 800;
+          color: #0f172a;
+          font-size: 13.5px;
+          line-height: 1;
+          white-space: nowrap;
         }
-        .price-old {
-          font-size: 15px;
+        .rating-divider {
+          color: #94a3b8;
+          font-weight: bold;
+          font-size: 12px;
+          user-select: none;
+        }
+        .product-rating-row .sold {
+          color: #475569;
+          font-size: 12.5px;
+          font-weight: 600;
+          white-space: nowrap;
+        }
+        @media (max-width: 360px) {
+          .product-rating-row {
+            gap: 4px 6px;
+          }
+          .product-rating-row .stars {
+            font-size: 13px;
+            letter-spacing: 0.5px;
+          }
+          .product-rating-row .score {
+            font-size: 12.5px;
+          }
+          .product-rating-row .sold {
+            font-size: 12px;
+          }
+        }
+
+        .selling-points {
+          margin: 14px 0 18px;
+          padding: 14px 16px;
+          background: #ffffff;
+          border: 1px solid var(--line);
+          border-radius: var(--radius-md);
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .selling-points li {
+          display: flex;
+          align-items: flex-start;
+          gap: 10px;
+          font-size: 14px;
+          font-weight: 600;
+          color: #1e293b;
+          line-height: 1.45;
+        }
+        .selling-points li strong {
+          color: var(--ink);
+          font-weight: 800;
+        }
+        .selling-points li span {
+          color: var(--green);
+          font-size: 16px;
+          font-weight: 900;
+          line-height: 1.1;
+          flex-shrink: 0;
+          width: 16px;
+        }
+
+        .price-block {
+          position: relative;
+          padding: 14px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          border: 1.5px solid #fed7aa;
+          border-radius: var(--radius-md);
+          background: #fff7ed;
+          margin-bottom: 18px;
+          animation: price-card-pulse 3.2s ease-in-out infinite;
+        }
+        @keyframes price-card-pulse {
+          0%, 100% { border-color: #fed7aa; box-shadow: 0 2px 8px rgba(234, 88, 12, 0.08); }
+          50% { border-color: #f97316; box-shadow: 0 4px 14px rgba(234, 88, 12, 0.16); }
+        }
+        .price-info-left {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          min-width: 0;
+        }
+        .price-info-left small {
+          display: block;
+          font-size: 13px;
+          font-weight: 800;
+          color: #475569;
+          margin-bottom: 3px;
+          line-height: 1.25;
+        }
+        .price-original {
+          font-size: 13.5px;
           color: #94a3b8;
           text-decoration: line-through;
           font-weight: 600;
+          line-height: 1.2;
         }
-        .discount-tag {
-          background: #dc2626;
-          color: #ffffff;
-          font-size: 12.5px;
+        .price-sale {
+          font-size: 27px;
           font-weight: 900;
-          padding: 3px 8px;
-          border-radius: var(--radius-full);
+          color: #dc2626;
+          line-height: 1.1;
+          margin-top: 1px;
         }
-
-        .trust-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 8px;
-        }
-        .trust-item {
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          padding: 10px 10px;
+        .price-tag-ship {
           display: flex;
-          align-items: center;
-          gap: 8px;
-        }
-        .trust-icon {
-          font-size: 18px;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 4px;
+          text-align: right;
           flex-shrink: 0;
         }
-        .trust-text {
-          font-size: 12.5px;
-          font-weight: 700;
-          color: #334155;
-          line-height: 1.25;
+        .price-tag-ship b {
+          background: #15803d;
+          color: white;
+          font-size: 11px;
+          font-weight: 800;
+          padding: 4px 10px;
+          border-radius: var(--radius-full);
+          letter-spacing: 0.2px;
+          white-space: nowrap;
+          box-shadow: 0 2px 6px rgba(21, 128, 61, 0.2);
+        }
+        .price-tag-ship span {
+          font-size: 11.5px;
+          font-weight: 600;
+          color: #64748b;
+          white-space: nowrap;
         }
 
-        .section-wrap {
-          padding: 18px 14px;
+        /* VARIANT PICKER */
+        .variant-picker {
+          margin-bottom: 14px;
+        }
+        .variant-picker-label {
+          font-size: 14px;
+          font-weight: 800;
+          color: var(--ink);
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .variant-picker-label span {
+          font-size: 12px;
+          font-weight: 600;
+          color: var(--green);
+        }
+        .variant-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+        }
+        .variant-card {
+          position: relative;
+          padding: 10px 6px 10px;
+          border: 1.5px solid var(--line);
+          border-radius: var(--radius-md);
+          background: #ffffff;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .variant-card:hover {
+          border-color: #cbd5e1;
+        }
+        .variant-card.active {
+          border-color: var(--green);
+          background: #f0fdf4;
+          box-shadow: 0 4px 12px rgba(21, 128, 61, 0.15);
+        }
+        .variant-card-badge {
+          position: absolute;
+          top: -9px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+          color: #ffffff;
+          font-size: 10px;
+          font-weight: 800;
+          padding: 2px 7px;
+          border-radius: var(--radius-full);
+          white-space: nowrap;
+          box-shadow: 0 2px 6px rgba(217, 119, 6, 0.3);
+        }
+        .variant-card-badge.supersaver {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+        .variant-card-name {
+          font-size: 13.5px;
+          font-weight: 800;
+          color: var(--ink);
+          margin-top: 4px;
+          margin-bottom: 3px;
+        }
+        .variant-card-oldprice {
+          font-size: 11.5px;
+          color: #94a3b8;
+          text-decoration: line-through;
+        }
+        .variant-card-price {
+          font-size: 14.5px;
+          font-weight: 900;
+          color: #dc2626;
+          margin-top: 1px;
+        }
+        .variant-card-ship {
+          font-size: 10.5px;
+          font-weight: 700;
+          color: var(--green);
+          margin-top: 3px;
+        }
+
+        /* UPGRADE PROMPT */
+        .variant-upgrade-prompt {
+          margin: 12px 0 16px;
+          padding: 10px 12px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          border: 1px solid #f2b28a;
+          border-radius: var(--radius-md);
+          background: #fff4ec;
+          color: var(--ink);
+        }
+        .variant-upgrade-text {
+          font-size: 12px;
+          line-height: 1.35;
+        }
+        .variant-upgrade-text b {
+          display: block;
+          color: #c2410c;
+          font-size: 12.5px;
+          font-weight: 800;
+        }
+        .variant-upgrade-text small {
+          color: #64748b;
+          font-size: 11px;
+        }
+        .variant-upgrade-btn {
+          padding: 6px 12px;
+          background: #ea580c;
+          color: white;
+          border: none;
+          border-radius: var(--radius-full);
+          font-size: 11.5px;
+          font-weight: 800;
+          white-space: nowrap;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .variant-upgrade-btn:active {
+          background: #c2410c;
+        }
+
+        /* BUY BUTTON (CTA BIG) */
+        .buy-button {
+          width: 100%;
+          padding: 15px 18px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          border-radius: var(--radius-md);
+          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+          color: #ffffff;
+          font-size: 16px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          text-decoration: none;
+          box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+          cursor: pointer;
+          transition: all 0.2s ease;
+          animation: buy-pulse 2.8s ease-in-out infinite;
+        }
+        @keyframes buy-pulse {
+          0%, 100% { transform: scale(1); box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4); }
+          50% { transform: scale(1.02); box-shadow: 0 8px 26px rgba(220, 38, 38, 0.55); }
+        }
+        .buy-button svg {
+          width: 20px;
+          height: 20px;
+          fill: currentColor;
+        }
+
+        .offer-trust {
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          margin-top: 14px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #475569;
+        }
+        .offer-trust span {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .offer-trust i {
+          width: 4px;
+          height: 4px;
+          background: #cbd5e1;
+          border-radius: 50%;
+        }
+
+        /* 4. SECTION COMPARISON (CÙNG LÀ MỎ NEO ĐẤT...) */
+        .comparison-section {
+          padding: 30px 18px 32px;
           background: #ffffff;
           border-bottom: 8px solid #f1f5f9;
         }
-        .section-title-box {
-          margin-bottom: 12px;
-          text-align: center;
-        }
-        .section-tag {
-          font-size: 12px;
+        .comparison-title {
+          font-size: 19px;
           font-weight: 900;
-          padding: 3px 9px;
-          border-radius: var(--radius-full);
-          display: inline-block;
-          margin-bottom: 5px;
-          letter-spacing: 0.5px;
+          line-height: 1.35;
+          color: var(--ink);
+          text-align: center;
+          margin-bottom: 8px;
+        }
+        .comparison-intro {
+          font-size: 13.5px;
+          color: var(--muted);
+          text-align: center;
+          margin-bottom: 20px;
+          line-height: 1.45;
+        }
+        .comparison-pair {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+          margin-bottom: 22px;
+        }
+        .comparison-col {
+          border-radius: var(--radius-md);
+          padding: 14px 12px;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .comparison-market {
+          background: #fef2f2;
+          border: 1.5px dashed #fca5a5;
+        }
+        .comparison-market .tag {
+          font-size: 11px;
+          font-weight: 800;
+          color: #dc2626;
           text-transform: uppercase;
         }
-        .section-title {
-          font-size: 18.5px;
+        .comparison-market strong {
+          font-size: 14px;
+          color: #991b1b;
+          font-weight: 800;
+        }
+        .comparison-market ul {
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .comparison-market li {
+          font-size: 12px;
+          color: #7f1d1d;
+          line-height: 1.35;
+          display: flex;
+          gap: 5px;
+        }
+        .comparison-market li::before {
+          content: "✕";
+          color: #dc2626;
           font-weight: 900;
-          color: var(--gray-900);
+        }
+
+        .comparison-shop {
+          background: #f0fdf4;
+          border: 2px solid var(--green);
+          box-shadow: 0 4px 14px rgba(21, 128, 61, 0.12);
+          position: relative;
+        }
+        .comparison-shop .tag {
+          font-size: 11px;
+          font-weight: 900;
+          color: var(--green);
+          text-transform: uppercase;
+        }
+        .comparison-shop strong {
+          font-size: 14px;
+          color: #14532d;
+          font-weight: 900;
+        }
+        .comparison-shop ul {
+          list-style: none;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+        .comparison-shop li {
+          font-size: 12px;
+          color: #166534;
+          font-weight: 600;
+          line-height: 1.35;
+          display: flex;
+          gap: 5px;
+        }
+        .comparison-shop li::before {
+          content: "✓";
+          color: var(--green);
+          font-weight: 900;
+        }
+
+        .real-product-box {
+          margin-top: 14px;
+          padding-top: 16px;
+          border-top: 1px solid var(--line);
+        }
+        .real-product-box h3 {
+          font-size: 15px;
+          font-weight: 800;
+          color: var(--ink);
+          margin-bottom: 4px;
+          text-align: center;
+        }
+        .real-product-box p {
+          font-size: 12.5px;
+          color: var(--muted);
+          text-align: center;
+          margin-bottom: 12px;
+        }
+        .real-photo-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .real-photo-item {
+          border-radius: var(--radius-sm);
+          overflow: hidden;
+          background: #f8fafc;
+          border: 1px solid #e2e8f0;
+          aspect-ratio: 1;
+        }
+        .real-photo-item img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .real-photo-caption {
+          font-size: 11px;
+          color: #475569;
+          text-align: center;
+          margin-top: 4px;
+          font-weight: 600;
+        }
+
+        .comparison-cta-wrap {
+          text-align: center;
+          margin-top: 14px;
+        }
+        .btn-sub-cta {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          padding: 12px 20px;
+          background: var(--green);
+          color: white;
+          border-radius: var(--radius-full);
+          font-size: 13.5px;
+          font-weight: 800;
+          text-decoration: none;
+          box-shadow: 0 4px 12px rgba(21, 128, 61, 0.25);
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        .btn-sub-cta:active {
+          background: var(--green-dark);
+        }
+
+        /* 5. SECTION SPECS & 3 BƯỚC THI CÔNG */
+        .specs-section {
+          padding: 28px 18px 30px;
+          background: #ffffff;
+          border-bottom: 8px solid #f1f5f9;
+        }
+        .mini-promo-banner {
+          background: linear-gradient(90deg, #15803d 0%, #16a34a 100%);
+          color: white;
+          padding: 10px 14px;
+          border-radius: var(--radius-md);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          margin-bottom: 22px;
+          box-shadow: 0 4px 12px rgba(22, 163, 74, 0.2);
+        }
+        .mini-promo-text {
+          font-size: 12px;
+          line-height: 1.35;
+        }
+        .mini-promo-text strong {
+          display: block;
+          font-size: 13.5px;
+          font-weight: 800;
+        }
+        .mini-promo-btn {
+          padding: 7px 13px;
+          background: #facc15;
+          color: #713f12;
+          font-size: 11.5px;
+          font-weight: 900;
+          border-radius: var(--radius-full);
+          text-decoration: none;
+          white-space: nowrap;
+          cursor: pointer;
+        }
+
+        .section-heading-tag {
+          font-size: 11.5px;
+          font-weight: 800;
+          color: var(--green);
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 4px;
+          display: block;
+        }
+        .section-main-title {
+          font-size: 19px;
+          font-weight: 900;
+          color: var(--ink);
+          margin-bottom: 14px;
           line-height: 1.3;
         }
 
         .spec-table {
           width: 100%;
           border-collapse: collapse;
-          border-radius: 8px;
+          font-size: 13px;
+          margin-bottom: 24px;
+          border-radius: var(--radius-md);
           overflow: hidden;
-          border: 1px solid #e2e8f0;
-          font-size: 14px;
+          border: 1px solid var(--line);
         }
-        .spec-table tr:nth-child(even) { background-color: #f8fafc; }
-        .spec-table tr:nth-child(odd) { background-color: #ffffff; }
+        .spec-table tr:nth-child(even) {
+          background: #f8fafc;
+        }
         .spec-table td {
           padding: 10px 12px;
-          border-bottom: 1px solid #e2e8f0;
+          border-bottom: 1px solid var(--line);
           line-height: 1.4;
         }
         .spec-table td.label {
-          width: 36%;
-          color: var(--gray-700);
+          width: 35%;
           font-weight: 700;
-          white-space: nowrap;
-        }
-        .spec-table td.val {
-          font-weight: 700;
-          color: var(--gray-900);
-        }
-
-        .concern-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-        .concern-card {
-          background: #ffffff;
-          border: 1.5px solid #e2e8f0;
-          border-radius: var(--radius-md);
-          padding: 14px 14px;
-          box-shadow: var(--shadow-sm);
-        }
-        .concern-head {
-          display: flex;
-          align-items: center;
-          gap: 9px;
-          margin-bottom: 6px;
-        }
-        .concern-icon {
-          width: 32px;
-          height: 32px;
-          background: #dcfce7;
-          color: #15803d;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 17px;
-          flex-shrink: 0;
-        }
-        .concern-title {
-          font-size: 15.5px;
-          font-weight: 900;
-          color: var(--gray-900);
-          line-height: 1.3;
-        }
-        .concern-desc {
-          font-size: 14.5px;
-          color: #334155;
-          line-height: 1.5;
-        }
-
-        .app-card {
-          background: #ffffff;
-          border: 1.5px solid #e2e8f0;
-          border-radius: var(--radius-md);
-          overflow: hidden;
-          margin-bottom: 16px;
-          box-shadow: var(--shadow-sm);
-        }
-        .app-card:last-child {
-          margin-bottom: 0;
-        }
-        .app-card-img-wrap {
-          position: relative;
-          width: 100%;
-          aspect-ratio: 1 / 1;
-          overflow: hidden;
+          color: #475569;
           background: #f1f5f9;
         }
-        .app-card-img-wrap img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-        .app-card-body {
-          padding: 13px 14px;
-        }
-        .app-card-title {
-          font-size: 16.5px;
-          font-weight: 900;
-          color: var(--gray-900);
-          margin-bottom: 5px;
-          line-height: 1.35;
-        }
-        .app-card-desc {
-          font-size: 14.5px;
-          color: #334155;
-          line-height: 1.5;
+        .spec-table td.val {
+          width: 65%;
+          font-weight: 600;
+          color: var(--ink);
         }
 
-        .step-list {
+        /* 3 BƯỚC THI CÔNG */
+        .step-cards {
           display: flex;
           flex-direction: column;
           gap: 10px;
         }
-        .step-item {
+        .step-card {
           display: flex;
-          align-items: flex-start;
-          gap: 12px;
+          align-items: center;
+          gap: 14px;
+          padding: 12px 14px;
           background: #f8fafc;
           border: 1px solid #e2e8f0;
-          padding: 12px 14px;
-          border-radius: 10px;
+          border-radius: var(--radius-md);
         }
         .step-num {
-          width: 30px;
-          height: 30px;
-          background: #15803d;
-          color: #fff;
-          font-size: 15px;
-          font-weight: 900;
+          flex: 0 0 36px;
+          height: 36px;
           border-radius: 50%;
+          background: var(--green);
+          color: white;
+          font-size: 16px;
+          font-weight: 900;
           display: flex;
           align-items: center;
           justify-content: center;
-          flex-shrink: 0;
         }
         .step-content strong {
-          font-size: 15.5px;
-          font-weight: 800;
-          color: var(--gray-900);
           display: block;
+          font-size: 13.5px;
+          font-weight: 800;
+          color: var(--ink);
           margin-bottom: 2px;
         }
         .step-content p {
-          font-size: 14px;
-          color: #334155;
-          line-height: 1.45;
-        }
-
-        .combo-grid {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          margin-top: 12px;
-        }
-        .combo-card {
-          border: 2px solid #cbd5e1;
-          border-radius: var(--radius-md);
-          padding: 12px 14px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          cursor: pointer;
-          position: relative;
-          background: #fff;
-          transition: all 0.2s ease;
-        }
-        .combo-card.active {
-          border-color: #15803d;
-          background: #f0fdf4;
-          box-shadow: 0 3px 10px rgba(21, 128, 61, 0.15);
-        }
-        .combo-badge-hot {
-          position: absolute;
-          top: -10px;
-          right: 12px;
-          background: var(--accent-red);
-          color: #fff;
-          font-size: 11.5px;
-          font-weight: 900;
-          padding: 2px 8px;
-          border-radius: var(--radius-full);
-          text-transform: uppercase;
-          box-shadow: 0 2px 6px rgba(220, 38, 38, 0.35);
-          white-space: nowrap;
-        }
-        .combo-left {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          min-width: 0;
-        }
-        .combo-radio {
-          width: 20px;
-          height: 20px;
-          border-radius: 50%;
-          border: 2px solid #94a3b8;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-        .combo-card.active .combo-radio {
-          border-color: #15803d;
-        }
-        .combo-card.active .combo-radio::after {
-          content: '';
-          width: 10px;
-          height: 10px;
-          background: #15803d;
-          border-radius: 50%;
-        }
-        .combo-info {
-          min-width: 0;
-        }
-        .combo-info strong {
-          display: block;
-          font-size: 15.5px;
-          font-weight: 900;
-          color: var(--gray-900);
-          line-height: 1.25;
-          white-space: nowrap;
-        }
-        .combo-info span {
-          font-size: 13.5px;
-          color: #15803d;
-          font-weight: 700;
-          white-space: nowrap;
-        }
-        .combo-price-right {
-          text-align: right;
-          flex-shrink: 0;
-          padding-left: 8px;
-        }
-        .combo-price-total {
-          font-size: 18px;
-          font-weight: 900;
-          color: #b91c1c;
-          display: block;
-          line-height: 1.2;
-          white-space: nowrap;
-        }
-        .combo-price-per {
-          font-size: 12.5px;
-          color: #64748b;
-          font-weight: 600;
-          white-space: nowrap;
-        }
-
-        .form-order-wrap {
-          background: #ffffff;
-          padding: 18px 14px;
-          border-bottom: 8px solid #f1f5f9;
-        }
-        .form-title-badge {
-          background: #fee2e2;
-          color: #b91c1c;
-          font-size: 12.5px;
-          font-weight: 900;
-          padding: 4px 10px;
-          border-radius: var(--radius-full);
-          display: inline-block;
-          margin-bottom: 6px;
-          text-transform: uppercase;
-          white-space: nowrap;
-        }
-        .form-head-title {
-          font-size: 18.5px;
-          font-weight: 900;
-          color: var(--gray-900);
-          margin-bottom: 4px;
-          line-height: 1.3;
-        }
-        .form-head-sub {
-          font-size: 14px;
-          color: var(--gray-700);
-          margin-bottom: 14px;
-          white-space: nowrap;
-        }
-
-        .input-group {
-          margin-bottom: 13px;
-        }
-        .input-label {
-          display: block;
-          font-size: 14.5px;
-          font-weight: 800;
-          color: var(--gray-900);
-          margin-bottom: 5px;
-        }
-        .input-label span.req {
-          color: #ef4444;
-        }
-        .input-field, .select-field, .textarea-field {
-          width: 100%;
-          padding: 11px 12px;
-          font-size: 15.5px;
-          border: 2px solid #cbd5e1;
-          border-radius: var(--radius-sm);
-          outline: none;
-          transition: border-color 0.2s ease;
-          background: #fff;
-          color: var(--gray-900);
-        }
-        .input-field:focus, .select-field:focus, .textarea-field:focus {
-          border-color: #15803d;
-          box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.18);
-        }
-        .textarea-field {
-          resize: none;
-          font-family: inherit;
-        }
-
-        .summary-bill {
-          background: #f8fafc;
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          padding: 12px 14px;
-          margin: 14px 0;
-        }
-        .bill-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 14.5px;
-          color: var(--gray-700);
-          margin-bottom: 6px;
-          white-space: nowrap;
-        }
-        .bill-row strong {
-          font-weight: 800;
-          font-size: 15px;
-        }
-        .bill-row.final {
-          margin-top: 8px;
-          padding-top: 8px;
-          border-top: 1.5px dashed #cbd5e1;
-          font-size: 15.5px;
-          font-weight: 900;
-          color: #b91c1c;
-          margin-bottom: 0;
-        }
-        .bill-row.final strong {
-          font-size: 19px;
-        }
-
-        .btn-submit {
-          width: 100%;
-          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-          color: #fff;
-          border: none;
-          border-radius: var(--radius-md);
-          padding: 14px 12px;
-          font-size: 17px;
-          font-weight: 900;
-          text-transform: uppercase;
-          letter-spacing: 0.3px;
-          cursor: pointer;
-          box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 3px;
-          transition: all 0.2s ease;
-        }
-        .btn-submit:hover {
-          background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
-          transform: translateY(-1px);
-        }
-        .btn-submit small {
-          font-size: 13px;
-          font-weight: 500;
-          text-transform: none;
-          opacity: 0.95;
-          white-space: nowrap;
-        }
-
-        .review-score-banner {
-          background: #fefce8;
-          border: 1.5px solid #fef08a;
-          border-radius: 8px;
-          padding: 10px 14px;
-          margin-bottom: 14px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          gap: 14px;
-        }
-        .score-num {
-          font-size: 28px;
-          font-weight: 900;
-          color: #b45309;
-          line-height: 1;
-        }
-
-        .review-card {
-          border-bottom: 1px solid #e2e8f0;
-          padding-bottom: 14px;
-          margin-bottom: 14px;
-        }
-        .review-card:last-child {
-          border-bottom: none;
-          margin-bottom: 0;
-          padding-bottom: 0;
-        }
-        .reviewer-head {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 8px;
-        }
-        .reviewer-avatar {
-          width: 38px;
-          height: 38px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 900;
-          font-size: 15px;
-          flex-shrink: 0;
-        }
-        .reviewer-info {
-          flex: 1;
-          min-width: 0;
-        }
-        .reviewer-name-row {
-          display: flex;
-          align-items: center;
-          flex-wrap: wrap;
-          gap: 6px;
-          margin-bottom: 2px;
-        }
-        .reviewer-name {
-          font-weight: 800;
-          font-size: 15px;
-          color: var(--gray-900);
-          white-space: nowrap;
-        }
-        .verified-badge {
-          font-size: 11.5px;
-          font-weight: 800;
-          background: #dcfce7;
-          color: #15803d;
-          padding: 2px 7px;
-          border-radius: 4px;
-          white-space: nowrap;
-        }
-        .reviewer-meta-row {
-          display: flex;
-          align-items: center;
-          gap: 7px;
-          font-size: 12.5px;
-          color: #64748b;
-          white-space: nowrap;
-        }
-        .reviewer-meta-row .stars {
-          color: #f59e0b;
-          font-size: 13px;
-          letter-spacing: -1px;
-        }
-        .review-text {
-          font-size: 14.5px;
-          color: #334155;
-          line-height: 1.5;
-          margin-bottom: 8px;
-        }
-        .review-photos-grid {
-          display: flex;
-          gap: 6px;
-        }
-        .review-thumb {
-          width: 72px;
-          height: 72px;
-          border-radius: 6px;
-          overflow: hidden;
-          background: #e2e8f0;
-        }
-        .review-thumb img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-
-        .faq-clean-box {
-          border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          margin-bottom: 8px;
-          overflow: hidden;
-        }
-        .faq-q {
-          padding: 12px 14px;
-          background: #f8fafc;
-          font-weight: 800;
-          font-size: 15px;
-          color: var(--gray-900);
-          cursor: pointer;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
+          font-size: 12px;
+          color: var(--muted);
           line-height: 1.35;
         }
-        .faq-a {
-          padding: 12px 14px;
-          font-size: 14.5px;
-          color: #334155;
-          background: #ffffff;
-          line-height: 1.55;
-          display: none;
-          border-top: 1px solid #e2e8f0;
+
+        /* 6. SECTION COMMITMENTS (4 CAM KẾT VÀNG) */
+        .commitments-section {
+          padding: 34px 18px 36px;
+          background: #0f172a;
+          color: white;
+          border-bottom: 8px solid #f1f5f9;
         }
-        .faq-clean-box.open .faq-a {
+        .commitments-label {
+          font-size: 11.5px;
+          font-weight: 800;
+          color: #4ade80;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          margin-bottom: 6px;
           display: block;
         }
-
-        .sticky-bar {
-          position: fixed;
-          bottom: 0;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 100%;
-          max-width: 440px;
-          height: 64px;
-          background: #ffffff;
-          border-top: 1px solid #e2e8f0;
-          padding: 6px 12px;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          z-index: 100;
-          box-shadow: 0 -3px 12px rgba(0,0,0,0.06);
-          transition: transform 0.35s ease, opacity 0.35s ease;
+        .commitments-title {
+          font-size: 20px;
+          font-weight: 900;
+          line-height: 1.3;
+          margin-bottom: 20px;
         }
-        .sticky-bar.hidden {
-          transform: translateX(-50%) translateY(100%) !important;
-          opacity: 0 !important;
-          pointer-events: none !important;
+        .commitment-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
         }
-        .sticky-left {
+        .commitment-card {
+          background: rgba(255, 255, 255, 0.06);
+          border: 1px solid rgba(255, 255, 255, 0.12);
+          border-radius: var(--radius-md);
+          padding: 14px 12px;
           display: flex;
           flex-direction: column;
+          gap: 6px;
         }
-        .sticky-badge {
-          font-size: 12px;
+        .commitment-card .card-num {
+          font-size: 22px;
+          font-weight: 900;
+          color: #4ade80;
+          line-height: 1;
+        }
+        .commitment-card h3 {
+          font-size: 13.5px;
           font-weight: 800;
-          color: #ea580c;
-          white-space: nowrap;
+          color: #ffffff;
+          line-height: 1.3;
         }
-        .sticky-val {
-          font-size: 19px;
-          font-weight: 900;
-          color: #b91c1c;
-          line-height: 1.1;
-          white-space: nowrap;
+        .commitment-card p {
+          font-size: 11.5px;
+          color: #cbd5e1;
+          line-height: 1.4;
         }
-        .btn-sticky {
-          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-          color: #fff;
-          border: none;
-          padding: 11px 20px;
-          border-radius: var(--radius-full);
-          font-size: 15px;
+
+        /* 7. SECTION ORDER FORM (CHUYỂN ĐỔI CAO) */
+        .order-section {
+          padding: 34px 18px 36px;
+          background: linear-gradient(155deg, #fff7ed 0%, #ffedd5 100%);
+          border-bottom: 8px solid #f1f5f9;
+          scroll-margin-top: 55px;
+        }
+        .order-section-title {
+          font-size: 22px;
           font-weight: 900;
+          color: #9a3412;
+          text-align: center;
+          margin-bottom: 12px;
           text-transform: uppercase;
-          cursor: pointer;
-          box-shadow: 0 3px 10px rgba(220, 38, 38, 0.35);
+          letter-spacing: 0.5px;
+        }
+        .form-countdown-box {
+          margin: 0 auto 20px;
+          padding: 10px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          border: 1.5px solid #fed7aa;
+          border-radius: var(--radius-md);
+          background: #ffffff;
+          box-shadow: 0 4px 14px rgba(234, 88, 12, 0.08);
+          max-width: 360px;
+        }
+        .form-countdown-label {
           display: flex;
           align-items: center;
           gap: 5px;
-          white-space: nowrap;
+          font-size: 13px;
+          font-weight: 800;
+          color: #c2410c;
+        }
+        .form-countdown-timer {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+        .countdown-time-unit {
+          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 900;
+          padding: 4px 8px;
+          border-radius: 6px;
+          min-width: 30px;
+          text-align: center;
+          font-variant-numeric: tabular-nums;
+          box-shadow: 0 2px 6px rgba(220, 38, 38, 0.25);
+        }
+        .countdown-colon {
+          font-size: 15px;
+          font-weight: 900;
+          color: #dc2626;
         }
 
-        .order-toast {
-          position: fixed;
-          bottom: 70px;
-          left: 50%;
-          transform: translateX(-50%) translateY(25px);
-          width: calc(100% - 24px);
-          max-width: 365px;
+        .order-form-card {
           background: #ffffff;
-          border: 1px solid #cbd5e1;
-          border-radius: 12px;
-          padding: 8px 10px 8px 12px;
+          border-radius: var(--radius-lg);
+          padding: 20px 16px;
+          box-shadow: 0 10px 30px rgba(154, 52, 18, 0.1);
+          border: 1px solid #fed7aa;
+        }
+        .form-group {
+          margin-bottom: 14px;
+        }
+        .form-group label {
+          display: block;
+          font-size: 13px;
+          font-weight: 800;
+          color: var(--ink);
+          margin-bottom: 6px;
+        }
+        .form-group label em {
+          color: #dc2626;
+          font-style: normal;
+          margin-left: 3px;
+        }
+        .input-text {
+          width: 100%;
+          padding: 12px 14px;
+          border: 1.5px solid #cbd5e1;
+          border-radius: var(--radius-md);
+          font-size: 14px;
+          color: var(--ink);
+          background: #f8fafc;
+          outline: none;
+          transition: border-color 0.2s, background 0.2s;
+        }
+        .input-text:focus {
+          border-color: var(--green);
+          background: #ffffff;
+          box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.15);
+        }
+        .field-error-msg {
+          font-size: 12px;
+          color: #dc2626;
+          margin-top: 4px;
+          font-weight: 600;
+        }
+
+        /* COMBO SELECTION PILLS INSIDE FORM */
+        .form-combo-selector {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          margin-bottom: 16px;
+        }
+        .form-combo-option {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 12px;
+          border: 1.5px solid #e2e8f0;
+          border-radius: var(--radius-md);
+          background: #f8fafc;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+        .form-combo-option.active {
+          border-color: var(--green);
+          background: #f0fdf4;
+        }
+        .form-combo-left {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          min-width: 0;
+          flex: 1;
+        }
+        .form-combo-radio {
+          width: 22px;
+          height: 22px;
+          min-width: 22px;
+          min-height: 22px;
+          flex: 0 0 22px;
+          flex-shrink: 0;
+          border-radius: 50%;
+          border: 2px solid #cbd5e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: #ffffff;
+          box-sizing: border-box;
+          transition: all 0.2s;
+        }
+        .form-combo-option.active .form-combo-radio {
+          border-color: var(--green);
+          background: #ffffff;
+        }
+        .form-combo-option.active .form-combo-radio::after {
+          content: "";
+          width: 10px;
+          height: 10px;
+          min-width: 10px;
+          min-height: 10px;
+          flex: 0 0 10px;
+          flex-shrink: 0;
+          border-radius: 50%;
+          background: var(--green);
+          display: block;
+          box-sizing: border-box;
+        }
+        .form-combo-title {
+          font-size: 14.5px;
+          font-weight: 800;
+          color: var(--ink);
+          display: block;
+        }
+        .form-combo-sub {
+          font-size: 11.5px;
+          font-weight: 600;
+          color: var(--muted);
+          display: block;
+          margin-top: 2px;
+        }
+        .form-combo-price {
+          text-align: right;
+          flex-shrink: 0;
+        }
+        .form-combo-price strong {
+          display: block;
+          font-size: 15.5px;
+          font-weight: 900;
+          color: #dc2626;
+        }
+        .form-combo-price small {
+          font-size: 11px;
+          font-weight: 800;
+          color: var(--green);
+        }
+
+        /* QUANTITY SELECTOR */
+        .quantity-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 10px 12px;
+          background: #f8fafc;
+          border-radius: var(--radius-md);
+          border: 1px solid #e2e8f0;
+          margin-bottom: 16px;
+        }
+        .quantity-label {
+          font-size: 13px;
+          font-weight: 800;
+          color: var(--ink);
+        }
+        .quantity-controls {
           display: flex;
           align-items: center;
           gap: 10px;
-          box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.16), 0 4px 10px -2px rgba(0, 0, 0, 0.08);
-          z-index: 998;
+        }
+        .quantity-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: var(--radius-sm);
+          background: #ffffff;
+          border: 1px solid #cbd5e1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: 800;
+          cursor: pointer;
+        }
+        .quantity-val {
+          font-size: 15px;
+          font-weight: 800;
+          color: var(--ink);
+          min-width: 20px;
+          text-align: center;
+        }
+
+        /* ORDER SUMMARY BOX (DYNAMIC) */
+        .order-summary-box {
+          border: 1.5px dashed #fed7aa;
+          border-radius: var(--radius-md);
+          padding: 12px 14px;
+          background: #fffaf5;
+          margin-bottom: 18px;
+        }
+        .order-summary-row {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 13px;
+          margin-bottom: 6px;
+          color: #475569;
+        }
+        .order-summary-row.total-row {
+          margin-top: 8px;
+          padding-top: 8px;
+          border-top: 1px solid #fed7aa;
+          font-size: 15px;
+          font-weight: 900;
+          color: var(--ink);
+        }
+        .order-summary-total-price {
+          font-size: 21px;
+          font-weight: 900;
+          color: #dc2626;
+        }
+
+        /* FORM SUBMIT BUTTON */
+        .btn-submit-order {
+          width: 100%;
+          padding: 16px 18px;
+          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+          color: #ffffff;
+          border: none;
+          border-radius: var(--radius-md);
+          font-size: 16px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.3px;
+          box-shadow: 0 6px 20px rgba(220, 38, 38, 0.4);
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 2px;
+        }
+        .btn-submit-order:disabled {
+          opacity: 0.7;
+          cursor: not-allowed;
+        }
+        .btn-submit-order span.sub-text {
+          font-size: 11px;
+          font-weight: 600;
+          text-transform: none;
+          opacity: 0.9;
+        }
+        .form-trust-footer {
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          margin-top: 14px;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #64748b;
+        }
+
+        /* 8. SECTION REVIEWS (FACEBOOK STYLE) */
+        .reviews-section {
+          padding: 30px 18px 34px;
+          background: #ffffff;
+          border-bottom: 8px solid #f1f5f9;
+        }
+        .social-comments-wrap {
+          border: 1px solid #e2e8f0;
+          border-radius: var(--radius-lg);
+          padding: 16px 14px;
+          background: #ffffff;
+          box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+        }
+        .comments-toolbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #f1f5f9;
+          margin-bottom: 14px;
+          font-size: 13.5px;
+        }
+        .comments-toolbar strong {
+          color: var(--ink);
+          font-weight: 800;
+        }
+        .comments-filter {
+          color: var(--muted);
+          font-size: 12.5px;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+        }
+        .comment-item {
+          display: grid;
+          grid-template-columns: 42px minmax(0, 1fr);
+          gap: 10px;
+          margin-bottom: 18px;
+        }
+        .comment-avatar {
+          width: 42px;
+          height: 42px;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: 800;
+          color: white;
+        }
+        .comment-bubble {
+          background: #f1f5f9;
+          padding: 10px 14px;
+          border-radius: 6px 16px 16px 16px;
+        }
+        .comment-user-row {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          margin-bottom: 2px;
+          flex-wrap: wrap;
+        }
+        .comment-name {
+          font-size: 13.5px;
+          font-weight: 800;
+          color: var(--ink);
+        }
+        .comment-badge-verified {
+          font-size: 10.5px;
+          font-weight: 700;
+          color: var(--green);
+          background: #dcfce7;
+          padding: 1px 6px;
+          border-radius: 4px;
+        }
+        .comment-stars {
+          color: #f59e0b;
+          font-size: 12px;
+          letter-spacing: 1px;
+          margin-bottom: 4px;
+        }
+        .comment-text {
+          font-size: 13px;
+          color: #334155;
+          line-height: 1.45;
+        }
+        .comment-photos {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 6px;
+          margin-top: 8px;
+        }
+        .comment-photos img {
+          width: 100%;
+          aspect-ratio: 1;
+          object-fit: cover;
+          border-radius: var(--radius-sm);
+          display: block;
+        }
+        .comment-meta {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-top: 4px;
+          font-size: 11.5px;
+          color: var(--muted);
+          font-weight: 600;
+        }
+        .comment-meta span.action {
+          cursor: pointer;
+        }
+        .comment-meta span.action:hover {
+          color: var(--ink);
+        }
+        .comment-meta .likes {
+          margin-left: auto;
+          display: flex;
+          align-items: center;
+          gap: 3px;
+          color: #1d4ed8;
+        }
+
+        /* 9. SECTION ỨNG DỤNG THỰC TẾ */
+        .usage-section {
+          padding: 30px 18px 32px;
+          background: #ffffff;
+          border-bottom: 8px solid #f1f5f9;
+        }
+        .usage-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 14px;
+        }
+        .usage-card {
+          border: 1px solid #e2e8f0;
+          border-radius: var(--radius-md);
+          overflow: hidden;
+          background: #ffffff;
+        }
+        .usage-card img {
+          width: 100%;
+          height: 190px;
+          object-fit: cover;
+          display: block;
+        }
+        .usage-card-body {
+          padding: 12px 14px;
+        }
+        .usage-card-body h3 {
+          font-size: 14.5px;
+          font-weight: 800;
+          color: var(--ink);
+          margin-bottom: 4px;
+        }
+        .usage-card-body p {
+          font-size: 12.5px;
+          color: var(--muted);
+          line-height: 1.4;
+        }
+
+        /* 10. SECTION FAQ ACCORDION */
+        .faq-section {
+          padding: 30px 18px 32px;
+          background: #ffffff;
+          border-bottom: 8px solid #f1f5f9;
+        }
+        .faq-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+        .faq-item {
+          border: 1.5px solid #e2e8f0;
+          border-radius: var(--radius-md);
+          overflow: hidden;
+          background: #f8fafc;
+        }
+        .faq-item.open {
+          border-color: var(--green);
+          background: #ffffff;
+        }
+        .faq-q {
+          padding: 13px 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          font-size: 13.5px;
+          font-weight: 800;
+          color: var(--ink);
+          cursor: pointer;
+        }
+        .faq-icon {
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--green);
+          transition: transform 0.2s;
+        }
+        .faq-item.open .faq-icon {
+          transform: rotate(45deg);
+        }
+        .faq-a {
+          padding: 0 14px 14px;
+          font-size: 12.5px;
+          color: #475569;
+          line-height: 1.5;
+          border-top: 1px dashed #e2e8f0;
+          padding-top: 10px;
+        }
+
+        /* 11. FOOTER */
+        .footer-clean {
+          padding: 22px 16px 28px;
+          text-align: center;
+          background: #0f172a;
+          color: #94a3b8;
+          font-size: 13px;
+          line-height: 1.5;
+        }
+
+        /* 12. STICKY BUY BOTTOM BAR */
+        .sticky-buy {
+          position: fixed;
+          z-index: 90;
+          left: 50%;
+          bottom: 10px;
+          width: calc(min(100%, 460px) - 20px);
+          transform: translateX(-50%);
+          padding: 10px 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          border-radius: var(--radius-md);
+          background: rgba(15, 23, 42, 0.95);
+          color: white;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+          backdrop-filter: blur(8px);
+          transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .sticky-buy.hidden {
+          transform: translate(-50%, 120%);
           opacity: 0;
           pointer-events: none;
-          transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .sticky-info {
+          display: flex;
+          flex-direction: column;
+        }
+        .sticky-label {
+          font-size: 11px;
+          font-weight: 700;
+          color: #cbd5e1;
+        }
+        .sticky-price {
+          font-size: 18px;
+          font-weight: 900;
+          color: #f87171;
+        }
+        .sticky-btn {
+          padding: 10px 18px;
+          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+          color: white;
+          border: none;
+          border-radius: var(--radius-full);
+          font-size: 13.5px;
+          font-weight: 900;
+          text-transform: uppercase;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+          animation: sticky-cta-attention 2.5s ease-in-out infinite;
+        }
+        @keyframes sticky-cta-attention {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.04); }
+        }
+
+        /* 13. REALTIME TOAST */
+        .order-toast {
+          position: fixed;
+          bottom: 86px;
+          left: 50%;
+          transform: translateX(-50%) translateY(20px);
+          width: calc(min(100%, 460px) - 24px);
+          background: rgba(255, 255, 255, 0.98);
+          border-radius: var(--radius-md);
+          padding: 8px 12px;
+          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.16);
+          border: 1px solid #e2e8f0;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          z-index: 85;
+          opacity: 0;
+          pointer-events: none;
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
         .order-toast.show {
           transform: translateX(-50%) translateY(0);
           opacity: 1;
           pointer-events: auto;
         }
-        .toast-thumb-wrap {
-          width: 42px;
-          height: 42px;
-          border-radius: 8px;
-          overflow: hidden;
-          flex-shrink: 0;
-          position: relative;
-          border: 1px solid #e2e8f0;
-          background: #f8fafc;
+        .order-toast.sticky-hidden {
+          bottom: 18px;
         }
-        .toast-thumb-wrap img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-        .toast-check-badge {
-          position: absolute;
-          bottom: -1px;
-          right: -1px;
-          background: #16a34a;
-          color: #fff;
-          font-size: 9px;
-          width: 14px;
-          height: 14px;
+        .toast-avatar {
+          width: 36px;
+          height: 36px;
+          min-width: 36px;
+          min-height: 36px;
           border-radius: 50%;
+          background: #dcfce7;
+          color: var(--green);
           display: flex;
           align-items: center;
           justify-content: center;
-          border: 1.5px solid #ffffff;
           font-weight: 900;
+          font-size: 14px;
+          flex-shrink: 0;
         }
         .toast-content {
           flex: 1;
@@ -1426,789 +2183,926 @@ export default function MoNeoDatLanding() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 8px;
-          margin-bottom: 2px;
-        }
-        .toast-cust-name {
           font-size: 12px;
-          font-weight: 700;
-          color: var(--gray-900);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-          flex: 1;
-          min-width: 0;
+        }
+        .toast-name {
+          font-weight: 800;
+          color: var(--ink);
         }
         .toast-time {
           font-size: 10.5px;
-          color: #64748b;
-          white-space: nowrap;
-          flex-shrink: 0;
+          color: var(--muted);
         }
-        .toast-line-mid {
-          font-size: 11.5px;
-          color: var(--gray-700);
+        .toast-line-bottom {
+          font-size: 11px;
+          color: var(--green);
+          font-weight: 700;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          line-height: 1.25;
-        }
-        .toast-line-mid strong {
-          color: #b91c1c;
-          font-weight: 700;
-        }
-        .toast-close-btn {
-          width: 22px;
-          height: 22px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #94a3b8;
-          font-size: 13px;
-          cursor: pointer;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-        .toast-close-btn:hover {
-          background: #f1f5f9;
-          color: #334155;
         }
 
-        .modal-wrap {
+        /* 14. SUCCESS MODAL */
+        .modal-overlay {
           position: fixed;
           inset: 0;
-          background: rgba(15, 23, 42, 0.75);
+          background: rgba(0,0,0,0.6);
           backdrop-filter: blur(4px);
-          display: none;
+          z-index: 200;
+          display: flex;
           align-items: center;
           justify-content: center;
           padding: 16px;
-          z-index: 2000;
         }
-        .modal-wrap.show {
-          display: flex;
-        }
-        .modal-content {
+        .modal-card {
           background: #ffffff;
           width: 100%;
-          max-width: 360px;
-          border-radius: var(--radius-md);
-          padding: 22px 18px;
+          max-width: 420px;
+          border-radius: var(--radius-lg);
+          padding: 24px 20px;
           text-align: center;
-          box-shadow: 0 16px 30px rgba(0,0,0,0.2);
-          animation: popIn 0.3s ease;
+          box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+          animation: modal-pop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes popIn {
+        @keyframes modal-pop {
           from { transform: scale(0.9); opacity: 0; }
           to { transform: scale(1); opacity: 1; }
         }
-        .modal-icon {
-          width: 48px;
-          height: 48px;
+        .modal-icon-success {
+          width: 58px;
+          height: 58px;
           background: #dcfce7;
-          color: #16a34a;
+          color: var(--green);
+          font-size: 28px;
+          font-weight: 900;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 24px;
-          margin: 0 auto 10px;
+          margin: 0 auto 12px;
         }
-        .modal-content h3 {
-          font-size: 19px;
+        .modal-title {
+          font-size: 18px;
           font-weight: 900;
-          color: var(--gray-900);
-          margin-bottom: 4px;
+          color: var(--ink);
+          margin-bottom: 6px;
         }
-        .modal-bill-info {
+        .modal-desc {
+          font-size: 13px;
+          color: var(--muted);
+          margin-bottom: 16px;
+          line-height: 1.45;
+        }
+        .modal-bill {
           background: #f8fafc;
           border: 1px solid #e2e8f0;
-          border-radius: 8px;
-          padding: 12px;
-          margin: 14px 0;
+          border-radius: var(--radius-md);
+          padding: 12px 14px;
+          font-size: 13px;
           text-align: left;
-          font-size: 14px;
-          color: var(--gray-700);
-          line-height: 1.5;
+          margin-bottom: 18px;
         }
-        .btn-modal-done {
+        .modal-bill-row {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 6px;
+        }
+        .modal-bill-row strong {
+          color: var(--ink);
+        }
+        .btn-modal-close {
           width: 100%;
-          background: var(--accent-red);
-          color: #fff;
-          border: none;
           padding: 12px;
-          border-radius: var(--radius-sm);
-          font-weight: 900;
-          font-size: 15px;
+          background: var(--green);
+          color: white;
+          border: none;
+          border-radius: var(--radius-md);
+          font-size: 14.5px;
+          font-weight: 800;
           cursor: pointer;
-        }
-
-        .footer-clean {
-          padding: 18px 14px 24px;
-          text-align: center;
-          background: #0f172a;
-          color: #94a3b8;
-          font-size: 13.5px;
-          line-height: 1.5;
         }
       `}} />
 
-      <div className="neo-page">
-        <div className="mobile-app-wrapper">
-
-          {/* Top Flash Announcement Bar - 1 DÒNG GỌN GÀNG */}
-          <div className="top-banner">
-            <span className="fire">⚡</span>
-            <span>GIẢM 35% HÔM NAY • MIỄN SHIP TỪ 10 CÁI</span>
-          </div>
-
-          {/* 1. HERO SLIDER */}
+      <main className="site-shell">
+        {/* ================= 1. TOPBAR STICKY (CHUYỂN ĐỔI CAO) ================= */}
+        <header className="topbar">
           <div
-            className="hero-slider-wrap"
+            className="topbar-left"
+            onClick={() => scrollToOrder(selectedCombo)}
+            role="button"
+            tabIndex={0}
+            aria-label="Xem ưu đãi đặt hàng"
+          >
+            <div className="topbar-headline">
+              <span className="topbar-bolt">⚡</span>
+              <span>Ưu Đãi Có Hạn Hôm Nay</span>
+            </div>
+            <div className="topbar-timer-wrap" aria-label={`Thời gian ưu đãi còn lại ${hours} giờ ${minutes} phút ${seconds} giây`}>
+              <span className="topbar-digit">{hours}</span>
+              <span className="topbar-colon">:</span>
+              <span className="topbar-digit">{minutes}</span>
+              <span className="topbar-colon">:</span>
+              <span className="topbar-digit">{seconds}</span>
+            </div>
+          </div>
+          <button
+            className="topbar-cta"
+            type="button"
+            onClick={() => scrollToOrder(selectedCombo)}
+            aria-label="Tôi mua giá ưu đãi"
+          >
+            <span>Mua Giá Ưu Đãi</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9 5 7 7-7 7" />
+            </svg>
+          </button>
+        </header>
+
+        {/* ================= 2. SECTION 1: ALBUM SẢN PHẨM ================= */}
+        <section className="album" id="top" aria-label="Album ảnh sản phẩm">
+          <div
+            className="album-stage"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
-            <div className="slider-badge-top-left">
-              <span>🛡️ THÉP HỢP KIM</span>
-              <span>•</span>
-              <span>BỀN &gt; 10 NĂM</span>
-            </div>
-            <div className="slider-badge-top-right">-35% HÔM NAY</div>
-
+            <span className="album-badge-promo">⚡ GIẢM 35% HÔM NAY</span>
+            <span className="album-badge-right">Thép Đúc Mạ Kẽm</span>
+            
             <div
-              className="slider-track"
-              id="sliderContainer"
+              className="album-track"
               style={{ transform: `translateX(-${currentSlide * 100}%)` }}
             >
               {slides.map((s, idx) => (
-                <div className="slide-item" key={idx}>
-                  <img src={s.src} alt={s.alt} />
+                <div className="album-slide" key={idx}>
+                  {s.type === "video" ? (
+                    <div className="album-video-wrap">
+                      <video
+                        ref={videoRef}
+                        src={s.src}
+                        poster={s.poster}
+                        playsInline
+                        autoPlay
+                        muted={isMuted}
+                        loop
+                        preload="metadata"
+                        className="album-video-el"
+                      />
+                      {isMuted && (
+                        <button
+                          className="video-sound-prompt"
+                          type="button"
+                          onClick={toggleSound}
+                          aria-label="Bật tiếng video"
+                        >
+                          <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M11 5 6.7 8.5H3v7h3.7L11 19V5Zm4.2 3.2a5.2 5.2 0 0 1 0 7.6M17.8 5.7a9 9 0 0 1 0 12.6" />
+                          </svg>
+                          <span>Chạm để bật tiếng</span>
+                        </button>
+                      )}
+                    </div>
+                  ) : (
+                    <img src={s.src} alt={s.alt} loading={idx <= 1 ? "eager" : "lazy"} />
+                  )}
                 </div>
               ))}
             </div>
 
-            <div className="slider-nav-btn prev" onClick={prevSlide}>‹</div>
-            <div className="slider-nav-btn next" onClick={nextSlide}>›</div>
-
-            <div className="slider-dots">
-              {slides.map((_, idx) => (
-                <div
-                  key={idx}
-                  className={`dot ${idx === currentSlide ? "active" : ""}`}
-                  onClick={() => goToSlide(idx)}
-                />
-              ))}
-            </div>
+            <button className="album-arrow previous" type="button" onClick={prevSlide} aria-label="Ảnh trước">
+              ‹
+            </button>
+            <button className="album-arrow next" type="button" onClick={nextSlide} aria-label="Ảnh kế tiếp">
+              ›
+            </button>
+            <span className="album-count"><b>{currentSlide + 1}</b> / {slides.length}</span>
           </div>
 
-          {/* Thumbnails row */}
-          <div className="thumbnails-row">
+          <div className="album-thumbs" role="list" aria-label="Danh sách ảnh thu nhỏ">
             {slides.map((s, idx) => (
-              <div
+              <button
                 key={idx}
-                className={`thumb-btn ${idx === currentSlide ? "active" : ""}`}
+                type="button"
+                className={`album-thumb ${idx === currentSlide ? "active" : ""} ${s.type === "video" ? "thumb-video" : ""}`}
                 onClick={() => goToSlide(idx)}
+                aria-label={s.type === "video" ? "Xem video mỏ neo" : `Xem ảnh ${idx}`}
               >
-                <img src={s.src} alt={`thumb ${idx + 1}`} />
-              </div>
+                {s.type === "video" ? (
+                  <div className="thumb-video-content">
+                    <img src={s.poster || "/assets/images_neo/hero_neo.jpg"} alt="Video" loading="lazy" />
+                    <span className="thumb-video-badge">▶ Video</span>
+                  </div>
+                ) : (
+                  <img src={s.src} alt="" loading="lazy" />
+                )}
+              </button>
             ))}
           </div>
+        </section>
 
-          {/* 2. FLASH SALE COUNTDOWN BAR */}
-          <div className="flashsale-bar">
-            <div className="flashsale-left">
-              <span>🔥 ƯU ĐÃI SẮP HẾT</span>
+        {/* ================= 3. SECTION 2: TÓM TẮT & BỘ CHỌN PHÂN LOẠI (TINYKA STYLE) ================= */}
+        <section className="product-summary" aria-label="Tóm tắt sản phẩm">
+          <h1 className="product-title">
+            MỎ NEO ĐẤT • TẢI KÉO TỚI 450KG
+          </h1>
+          <div className="product-rating-row">
+            <div className="rating-stars-wrap">
+              <span className="stars">★★★★★</span>
+              <strong className="score">4.9/5</strong>
             </div>
-            <div className="flashsale-timer">
-              <span>Kết thúc sau:</span>
-              <div className="time-box">{hours}</div> :
-              <div className="time-box">{minutes}</div> :
-              <div className="time-box">{seconds}</div>
+            <span className="rating-divider">•</span>
+            <span className="sold">2.450+ nhà vườn tin dùng</span>
+          </div>
+
+          <ul className="selling-points">
+            <li><span>✓</span><div><strong>Tải kéo tới 450kg/điểm (tùy loại đất):</strong> Càng giật mạnh cánh neo càng khóa chặt ngậm đất</div></li>
+            <li><span>✓</span><div><strong>Tự khóa ngậm đất 90°:</strong> Không sợ bật gốc khi giông bão, lốc xoáy</div></li>
+            <li><span>✓</span><div><strong>Thép đúc mạ kẽm siêu bền:</strong> Chống rỉ sét tuyệt đối, tuổi thọ &gt; 10 năm</div></li>
+            <li><span>✓</span><div><strong>Thi công 3 phút cực nhàn:</strong> Không đào hố, không tốn công đổ bê tông</div></li>
+          </ul>
+
+          {/* KHỐI GIÁ */}
+          <div className="price-block">
+            <div className="price-info-left">
+              <small>{currentCombo.name}</small>
+              <del className="price-original">{currentCombo.oldPrice.toLocaleString("vi-VN")}đ</del>
+              <strong className="price-sale">{currentCombo.price.toLocaleString("vi-VN")}đ</strong>
+            </div>
+            <div className="price-tag-ship">
+              <b>{currentCombo.ship === 0 ? "MIỄN PHÍ SHIP" : "SHIP 20.000Đ"}</b>
+              <span>Thanh toán khi nhận</span>
             </div>
           </div>
 
-          {/* Thanh tiến trình còn lại */}
-          <div className="stock-meter-wrap">
-            <div className="stock-line-text">
-              <span style={{ fontWeight: 900, color: "#b91c1c" }}>⚡ Suất trợ giá hôm nay</span>
-              <span style={{ fontWeight: 800, color: "#0f172a" }}>Chỉ còn 28 bộ</span>
+          {/* BỘ CHỌN PHÂN LOẠI TRỰC QUAN */}
+          <div className="variant-picker">
+            <div className="variant-picker-label">
+              <span>Chọn gói combo ưu đãi:</span>
             </div>
-            <div className="stock-bar-bg">
-              <div className="stock-bar-fill" />
-            </div>
-          </div>
-
-          {/* 3. MAIN PRODUCT INFO */}
-          <div className="product-main-info">
-            <h1 className="product-title">
-              Mỏ Neo Đất NDM-10 - Chịu Lực Kéo Tới 450kg, Độ Bền Trên 10 Năm
-            </h1>
-
-            <div className="product-subtitle">
-              <span>✓ Thép hợp kim đúc</span>
-              <span>•</span>
-              <span>Chống rỉ sét</span>
-              <span>•</span>
-              <span>0 cần đổ bê tông</span>
-            </div>
-
-            <div className="rating-row">
-              <div className="stars">★★★★★</div>
-              <span className="rating-score">4.9 / 5.0</span>
-              <span>(1.840 đã bán • 520 đánh giá)</span>
-            </div>
-
-            <div className="price-box">
-              <div className="price-current-wrap">
-                <span className="price-current">29.900đ</span>
-                <span className="price-unit">/ cái</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span className="price-old">45.000đ</span>
-                <span className="discount-tag">-35%</span>
-              </div>
-            </div>
-
-            {/* 2 Chính Sách Cam Kết */}
-            <div className="trust-grid">
-              <div className="trust-item">
-                <div className="trust-icon">📦</div>
-                <div className="trust-text">Kiểm tra hàng khi nhận</div>
-              </div>
-              <div className="trust-item">
-                <div className="trust-icon">🛡️</div>
-                <div className="trust-text">Cam kết chuẩn 100% như ảnh sản phẩm</div>
-              </div>
-            </div>
-          </div>
-
-          {/* 4. SPECIFICATION TABLE */}
-          <div className="section-wrap">
-            <div className="section-title-box">
-              <span className="section-tag" style={{ background: "#dcfce7", color: "#15803d" }}>THÔNG SỐ CHUẨN</span>
-              <h2 className="section-title">THÔNG SỐ MỎ NEO ĐẤT NDM-10</h2>
-            </div>
-
-            <table className="spec-table">
-              <tbody>
-                <tr>
-                  <td className="label">Khối lượng</td>
-                  <td className="val">135gr / cái (Thép đúc dày dặn)</td>
-                </tr>
-                <tr>
-                  <td className="label">Kích thước</td>
-                  <td className="val">Dài 10cm x Rộng 1.5cm x Cao 1.5cm</td>
-                </tr>
-                <tr>
-                  <td className="label">Chất liệu</td>
-                  <td className="val">Thép hợp kim đúc đặc mạ kẽm</td>
-                </tr>
-                <tr>
-                  <td className="label">Lực giữ tải</td>
-                  <td className="val">Chịu lực kéo nhổ 250kg – 450kg / điểm</td>
-                </tr>
-                <tr>
-                  <td className="label">Độ bền</td>
-                  <td className="val">&gt; 10 năm trong mọi loại thổ nhưỡng</td>
-                </tr>
-                <tr>
-                  <td className="label">Ứng dụng</td>
-                  <td className="val">Căng giàn leo, căng mái che, giữ cáp chống bão</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          {/* 5. 4 VẤN ĐỀ KHÁCH HÀNG QUAN TÂM NHẤT */}
-          <div className="section-wrap">
-            <div className="section-title-box">
-              <span className="section-tag" style={{ background: "#dcfce7", color: "#15803d" }}>GIẢI QUYẾT TRIỆT ĐỂ</span>
-              <h2 className="section-title">4 LỢI ÍCH CỐT LÕI BẠN CẦN</h2>
-            </div>
-
-            <div className="concern-grid">
-              <div className="concern-card">
-                <div className="concern-head">
-                  <div className="concern-icon">⚓</div>
-                  <div className="concern-title">Chịu Tải 450kg • Càng Kéo Càng Chặt</div>
-                </div>
-                <div className="concern-desc">
-                  Cơ chế tự khóa thông minh: Khi giật ngược cáp, cánh neo tự động xoay ngang 90° ngậm chặt vào lòng đất nén cứng. Chịu lực kéo đến <strong>450kg/điểm</strong>, gió dông bão cấp 10 không nhổ được!
-                </div>
-              </div>
-
-              <div className="concern-card">
-                <div className="concern-head">
-                  <div className="concern-icon">⏱️</div>
-                  <div className="concern-title">0 Đào Hố • 0 Đổ Bê Tông • Xong 2 Phút</div>
-                </div>
-                <div className="concern-desc">
-                  Không cần thuê thợ, không cần trộn xi măng tốn kém. Chỉ cần 1 người dùng cây sắt phi 10-12mm đóng thẳng mỏ neo xuống đất trong <strong>2 phút</strong> là có ngay điểm neo siêu chắc chắn!
-                </div>
-              </div>
-
-              <div className="concern-card">
-                <div className="concern-head">
-                  <div className="concern-icon">🌱</div>
-                  <div className="concern-title">Đóng Ngọt Trên Mọi Loại Thổ Nhưỡng</div>
-                </div>
-                <div className="concern-desc">
-                  Đầu neo vát nhọn khí động học, cắm tốt trên đất thịt, đất đỏ bazan, đất sét, đất cát, đất pha sỏi. Đất khô nén cứng chỉ cần tưới chút nước là đóng êm ru.
-                </div>
-              </div>
-
-              <div className="concern-card">
-                <div className="concern-head">
-                  <div className="concern-icon">🛡️</div>
-                  <div className="concern-title">Thép Hợp Kim Đúc Đặc • Bền &gt; 10 Năm</div>
-                </div>
-                <div className="concern-desc">
-                  Nặng 135gr, mạ kẽm chống rỉ sét, kháng phèn mặn và chống ăn mòn oxy hóa, chôn sâu trong đất ẩm ướt hàng chục năm không lo gãy mục.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 6. HẬU QUẢ KHI KHÔNG DÙNG MỎ NEO ĐẤT (CẢNH BÁO) */}
-          <div className="section-wrap">
-            <div className="section-title-box">
-              <span className="section-tag" style={{ background: "#fee2e2", color: "#b91c1c" }}>CẢNH BÁO NGUY CƠ</span>
-              <h2 className="section-title">HẬU QUẢ NẶNG NỀ KHI THIẾU MỎ NEO ĐẤT</h2>
-            </div>
-
-            <div className="app-card">
-              <div className="app-card-img-wrap">
-                <img src="/assets/images_neo/problem_sap_gian.jpg" alt="Sập đổ giàn leo khi không neo cáp" />
-              </div>
-              <div className="app-card-body">
-                <div className="app-card-title">1. Sập Đổ Rạp Cả Giàn Dưa, Chanh Leo Khi Mưa Giông</div>
-                <div className="app-card-desc">
-                  Không có mỏ neo đất giữ dây cáp giàn, mưa dông giật mạnh làm nghiêng cột, đứt cáp, cả giàn chanh leo, bầu bí đổ sập rạp xuống bùn đất, thiệt hại nặng nề vụ mùa!
-                </div>
-              </div>
-            </div>
-
-            <div className="app-card">
-              <div className="app-card-img-wrap">
-                <img src="/assets/images_neo/problem_mai_che_bat.jpg" alt="Tốc lật bạt che mái hiên khi không neo cáp" />
-              </div>
-              <div className="app-card-body">
-                <div className="app-card-title">2. Tốc Lật, Rách Toạc Bạt Che & Mái Hiên Ngoài Trời</div>
-                <div className="app-card-desc">
-                  Bạt căng che nắng mưa ngoài trời, mái hiên sân vườn không neo ghì chân dây cáp, gặp cơn lốc giật tung cọc, rách toạc bạt và làm gãy cong cả khung chống!
-                </div>
-              </div>
-            </div>
-
-            <div className="app-card">
-              <div className="app-card-img-wrap">
-                <img src="/assets/images_neo/problem_cay_nghieng.jpg" alt="Nghiêng ngả gãy cành cây ăn trái mùa giông" />
-              </div>
-              <div className="app-card-body">
-                <div className="app-card-title">3. Nghiêng Ngả, Gãy Cành Cây Ăn Trái Trong Vườn Nhà</div>
-                <div className="app-card-desc">
-                  Cây bưởi, cây ăn trái cỡ vừa trĩu quả không chằng néo bị giông quật nghiêng 50 độ, cành trĩu quả gãy toác chạm đất bùn dập nát, xót xa bao công chăm sóc!
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 7. HƯỚNG DẪN THI CÔNG 3 BƯỚC */}
-          <div className="section-wrap">
-            <div className="section-title-box">
-              <span className="section-tag" style={{ background: "#dcfce7", color: "#15803d" }}>NHANH GỌN</span>
-              <h2 className="section-title">HƯỚNG DẪN 3 BƯỚC THI CÔNG</h2>
-            </div>
-
-            <div className="step-list">
-              <div className="step-item">
-                <div className="step-num">1</div>
-                <div className="step-content">
-                  <strong>Xỏ dây cáp vào mỏ neo</strong>
-                  <p>Luồn dây cáp bọc nhựa hoặc dây thép qua lỗ khuyên trên thân mỏ neo NDM-10 rồi khóa chặt đầu cáp.</p>
-                </div>
-              </div>
-
-              <div className="step-item">
-                <div className="step-num">2</div>
-                <div className="step-content">
-                  <strong>Đóng neo xuống đất bằng cây sắt</strong>
-                  <p>Dùng cây sắt phi 10-12mm lồng vào đuôi neo, dùng búa đóng nghiêng 45-60° sâu từ 40cm đến 80cm.</p>
-                </div>
-              </div>
-
-              <div className="step-item">
-                <div className="step-num">3</div>
-                <div className="step-content">
-                  <strong>Rút cây sắt và giật căng cáp</strong>
-                  <p>Rút cây sắt lên, giật mạnh sợi cáp để mỏ neo lật ngang 90° khóa ngậm chặt vào lòng đất. Cố định dây vào giàn hoặc mái che!</p>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* 8. GÓI COMBO & FORM ĐẶT HÀNG */}
-          <div className="form-order-wrap" id="orderForm">
-            <div style={{ textAlign: "center" }}>
-              <span className="form-title-badge">ƯU ĐÃI TRỰC TIẾP TỪ KHO</span>
-              <h2 className="form-head-title">ĐẶT HÀNG NHẬN ƯU ĐÃI HÔM NAY</h2>
-              <p className="form-head-sub">Miễn phí ship từ combo 10 cái • Kiểm tra trước khi trả tiền</p>
-            </div>
-
-            {/* DANH SÁCH 3 GÓI COMBO - 1 DÒNG ĐỐI XỨNG GỌN GÀNG */}
-            <div className="combo-grid">
-
-              {/* Combo 1: 5 cái */}
-              <div
-                className={`combo-card ${selectedCombo === 5 ? "active" : ""}`}
-                onClick={() => setSelectedCombo(5)}
-              >
-                <div className="combo-left">
-                  <div className="combo-radio" />
-                  <div className="combo-info">
-                    <strong>GÓI 5 CÁI</strong>
-                    <span>170K + 20K ship</span>
+            <div className="variant-grid" role="radiogroup">
+              {Object.values(comboConfig).map((c) => {
+                const isActive = selectedCombo === c.id;
+                return (
+                  <div
+                    key={c.id}
+                    role="radio"
+                    aria-checked={isActive}
+                    className={`variant-card ${isActive ? "active" : ""}`}
+                    onClick={() => setSelectedCombo(c.id)}
+                  >
+                    {c.badge && (
+                      <span className={`variant-card-badge ${c.tagClass || ""}`}>
+                        {c.badge}
+                      </span>
+                    )}
+                    <span className="variant-card-name">{c.label}</span>
+                    <span className="variant-card-oldprice">{c.oldPrice.toLocaleString("vi-VN")}đ</span>
+                    <strong className="variant-card-price">{c.price.toLocaleString("vi-VN")}đ</strong>
+                    <span className="variant-card-ship">
+                      {c.ship === 0 ? "Freeship" : "+20k ship"}
+                    </span>
                   </div>
-                </div>
-                <div className="combo-price-right">
-                  <span className="combo-price-total">190.000đ</span>
-                  <span className="combo-price-per">Đã gồm ship</span>
-                </div>
-              </div>
+                );
+              })}
+            </div>
+          </div>
 
-              {/* Combo 2: 10 cái (HOT) */}
-              <div
-                className={`combo-card ${selectedCombo === 10 ? "active" : ""}`}
+          {/* GỢI Ý NÂNG CẤP THÔNG MINH */}
+          {selectedCombo === 5 && (
+            <div className="variant-upgrade-prompt">
+              <div className="variant-upgrade-text">
+                <b>Thêm 109.000đ lên Combo 10 cái</b>
+                <small>Được MIỄN PHÍ SHIP và đủ neo cho cả giàn vườn</small>
+              </div>
+              <button
+                type="button"
+                className="variant-upgrade-btn"
                 onClick={() => setSelectedCombo(10)}
               >
-                <span className="combo-badge-hot">🔥 BÁN CHẠY NHẤT</span>
-                <div className="combo-left">
-                  <div className="combo-radio" />
-                  <div className="combo-info">
-                    <strong>COMBO 10 CÁI</strong>
-                    <span>29.900đ/cái • MIỄN SHIP</span>
-                  </div>
-                </div>
-                <div className="combo-price-right">
-                  <span className="combo-price-total">299.000đ</span>
-                  <span className="combo-price-per">Tiết kiệm 50K</span>
-                </div>
-              </div>
+                Chọn 10 cái
+              </button>
+            </div>
+          )}
 
-              {/* Combo 3: 20 cái (VIP) */}
-              <div
-                className={`combo-card ${selectedCombo === 20 ? "active" : ""}`}
-                onClick={() => setSelectedCombo(20)}
-              >
-                <span className="combo-badge-hot">🌟 TIẾT KIỆM NHẤT</span>
-                <div className="combo-left">
-                  <div className="combo-radio" />
-                  <div className="combo-info">
-                    <strong>COMBO 20 CÁI</strong>
-                    <span>24.950đ/cái • MIỄN SHIP</span>
-                  </div>
-                </div>
-                <div className="combo-price-right">
-                  <span className="combo-price-total">499.000đ</span>
-                  <span className="combo-price-per">Tiết kiệm 150K</span>
-                </div>
-              </div>
+          {/* NÚT BIG CTA ĐẶT MUA NGAY */}
+          <button
+            type="button"
+            className="buy-button"
+            onClick={() => scrollToOrder(selectedCombo)}
+          >
+            <span>Đặt mua ngay giá ưu đãi</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 7 7-7 7" /></svg>
+          </button>
 
+          <div className="offer-trust">
+            <span>📦 Kiểm tra hàng trước</span>
+            <i aria-hidden="true"></i>
+            <span>🚚 Thanh toán khi nhận</span>
+          </div>
+        </section>
+
+        {/* ================= 4. SECTION 3: SO SÁNH MINH BẠCH (TINYKA STYLE) ================= */}
+        <section className="comparison-section" id="product-comparison" aria-labelledby="comparison-title">
+          <h2 className="comparison-title" id="comparison-title">
+            Cùng là mỏ neo đất, mua ở đâu cũng như nhau?
+          </h2>
+          <p className="comparison-intro">
+            Bà con xem rõ điểm khác biệt để tránh mua nhầm hàng mỏng kém chất lượng:
+          </p>
+
+          <div className="comparison-pair">
+            <div className="comparison-col comparison-market">
+              <span className="tag">Hàng giá rẻ trôi nổi</span>
+              <strong>Tôn dập mỏng &amp; mạ xi</strong>
+              <ul>
+                <li>Lưỡi tôn mỏng, dễ quăn mép khi gặp sỏi đá</li>
+                <li>Cáp sắt mỏng, dễ rỉ sét và đứt ngầm</li>
+                <li>Lực giữ yếu (&lt;50kg), giông gió là bung giàn</li>
+              </ul>
             </div>
 
-            {/* FORM NHẬP THÔNG TIN */}
-            <form onSubmit={handleOrderSubmit} style={{ marginTop: "16px" }}>
-              <div className="input-group">
-                <label className="input-label" htmlFor="custName">
-                  Họ và tên người nhận: <span className="req">*</span>
-                </label>
+            <div className="comparison-col comparison-shop">
+              <span className="tag">Hàng đúc NEO-10 của Shop</span>
+              <strong>Thép đúc đặc mạ kẽm</strong>
+              <ul>
+                <li>Thép đúc đặc nguyên khối, chống rỉ vĩnh cửu</li>
+                <li>Cáp bọc chịu tải cao bấm đầu cos thép dày</li>
+                <li>Tự khóa 90° ngậm đất, chịu tải kéo tới 450kg (tùy kết cấu đất)</li>
+                <li>Độ bền &gt; 10 năm dầm mưa dãi nắng</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="real-product-box">
+            <h3>Ảnh thật sản phẩm chuẩn tại shop</h3>
+            <p>Mỏ neo thép hợp kim đúc đặc mạ kẽm kèm đầu cáp bấm cos chịu tải kéo tới 450kg (tùy nền đất).</p>
+            <div style={{ maxWidth: "340px", margin: "0 auto", borderRadius: "var(--radius-md)", overflow: "hidden", border: "2px solid var(--green)", boxShadow: "0 4px 14px rgba(21, 128, 61, 0.15)" }}>
+              <img src="/assets/images_neo/hero_neo.jpg" alt="Mỏ neo đất NEO-10 chuẩn tại shop" style={{ width: "100%", display: "block" }} loading="lazy" />
+              <div style={{ padding: "8px 12px", background: "#f0fdf4", textAlign: "center", fontSize: "12.5px", fontWeight: "800", color: "var(--green)" }}>
+                ✓ Mẫu NEO-10 đúc đặc mạ kẽm nguyên khối
+              </div>
+            </div>
+          </div>
+
+          <div className="comparison-cta-wrap">
+            <button
+              type="button"
+              className="btn-sub-cta"
+              onClick={() => scrollToOrder(selectedCombo)}
+            >
+              Tôi muốn đặt mua mẫu chuẩn shop →
+            </button>
+          </div>
+        </section>
+
+        {/* ================= 5. SECTION 4: THÔNG SỐ & 3 BƯỚC THI CÔNG ================= */}
+        <section className="specs-section" id="specs-section" aria-label="Thông số kỹ thuật và thi công">
+          <div className="mini-promo-banner">
+            <div className="mini-promo-text">
+              <strong>ƯU ĐÃI GIAO TẬN NHÀ HÔM NAY</strong>
+              <span>Combo 10 cái chỉ 299.000đ • Miễn phí ship • Kiểm tra hàng</span>
+            </div>
+            <button
+              type="button"
+              className="mini-promo-btn"
+              onClick={() => scrollToOrder(10)}
+            >
+              Đặt ngay →
+            </button>
+          </div>
+
+          <span className="section-heading-tag">KỸ THUẬT &amp; KÍCH THƯỚC</span>
+          <h2 className="section-main-title">Thông số kỹ thuật mỏ neo đất</h2>
+
+          <table className="spec-table">
+            <tbody>
+              <tr>
+                <td className="label">Khối lượng</td>
+                <td className="val">135gr / cái (Thép đúc đặc cầm đầm tay)</td>
+              </tr>
+              <tr>
+                <td className="label">Kích thước</td>
+                <td className="val">Dài 10cm x Rộng 1.5cm</td>
+              </tr>
+              <tr>
+                <td className="label">Chất liệu</td>
+                <td className="val">Thép hợp kim đúc đặc nguyên khối mạ kẽm</td>
+              </tr>
+              <tr>
+                <td className="label">Lực giữ tải</td>
+                <td className="val">Chịu lực kéo nhổ tới 450kg / điểm neo (tùy loại đất thịt, đất đỏ hay đất pha cát)</td>
+              </tr>
+              <tr>
+                <td className="label">Độ bền</td>
+                <td className="val">&gt; 10 năm trong mọi loại đất (kể cả đất phèn, mặn)</td>
+              </tr>
+              <tr>
+                <td className="label">Ứng dụng</td>
+                <td className="val">Căng giàn leo, giữ bạt mái che, chống bão cây ăn trái</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <span className="section-heading-tag">THI CÔNG DỄ DÀNG</span>
+          <h2 className="section-main-title">3 Bước đóng mỏ neo trong 3 phút</h2>
+
+          <div className="step-cards">
+            <div className="step-card">
+              <span className="step-num">01</span>
+              <div className="step-content">
+                <strong>Đóng mỏ neo xuống đất</strong>
+                <p>Lồng que sắt phi 12-14 vào đuôi neo, đóng thẳng sâu 0.8m – 1m.</p>
+              </div>
+            </div>
+            <div className="step-card">
+              <span className="step-num">02</span>
+              <div className="step-content">
+                <strong>Rút que sắt lên</strong>
+                <p>Mỏ neo đã nằm sâu trong lòng đất, rút que đóng lên dễ dàng.</p>
+              </div>
+            </div>
+            <div className="step-card">
+              <span className="step-num">03</span>
+              <div className="step-content">
+                <strong>Kéo cáp khóa ngậm đất</strong>
+                <p>Kéo siết mạnh dây cáp, lẫy neo tự xoay 90° ngậm chặt tầng đất nén.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 6. SECTION 5: 4 CAM KẾT VÀNG CỦA SHOP (TINYKA STYLE) ================= */}
+        <section className="commitments-section" id="commitments" aria-labelledby="commitments-title">
+          <span className="commitments-label">CAM KẾT CỦA SHOP</span>
+          <h2 className="commitments-title" id="commitments-title">
+            Mua hàng rõ ràng.<br />Nhận hàng an tâm.
+          </h2>
+
+          <div className="commitment-grid">
+            <article className="commitment-card">
+              <span className="card-num">01</span>
+              <h3>Đúng mẫu, đúng chất lượng</h3>
+              <p>Kiểm tra hàng tận tay. Cầm nặng tay, thép đúc dày dặn đúng mô tả mới nhận.</p>
+            </article>
+
+            <article className="commitment-card">
+              <span className="card-num">02</span>
+              <h3>Đóng gói đủ phụ kiện</h3>
+              <p>Đầy đủ dây cáp bấm cos và chốt hãm, bao bọc cẩn thận tránh thất lạc.</p>
+            </article>
+
+            <article className="commitment-card">
+              <span className="card-num">03</span>
+              <h3>Bảo hành lỗi 1 đổi 1</h3>
+              <p>Bảo hành độ bền thép mạ kẽm. Đổi mới ngay nếu có lỗi mối đúc hay phụ kiện.</p>
+            </article>
+
+            <article className="commitment-card">
+              <span className="card-num">04</span>
+              <h3>Không cọc, nhận mới trả</h3>
+              <p>Giao tận nhà toàn quốc. Nhận hàng ưng ý mới thanh toán tiền mặt (COD).</p>
+            </article>
+          </div>
+        </section>
+
+        {/* ================= 7. SECTION 6: FORM ĐẶT HÀNG TRỰC TIẾP (ORDER SECTION) ================= */}
+        <section className="order-section" id="order-section" aria-labelledby="order-section-title">
+          <h2 className="order-section-title" id="order-section-title">
+            THÔNG TIN ĐƠN HÀNG
+          </h2>
+          <div className="form-countdown-box">
+            <span className="form-countdown-label">
+              <span>⚡</span>Ưu đãi kết thúc sau:
+            </span>
+            <div className="form-countdown-timer">
+              <span className="countdown-time-unit">{hours}</span>
+              <span className="countdown-colon">:</span>
+              <span className="countdown-time-unit">{minutes}</span>
+              <span className="countdown-colon">:</span>
+              <span className="countdown-time-unit">{seconds}</span>
+            </div>
+          </div>
+
+          <div className="order-form-card">
+            <form onSubmit={handleOrderSubmit}>
+              <div className="form-group">
+                <label htmlFor="cust-name">Họ và tên người nhận <em>*</em></label>
                 <input
+                  id="cust-name"
                   type="text"
-                  id="custName"
-                  className="input-field"
-                  placeholder="Ví dụ: Nguyễn Văn Hoàng"
+                  className="input-text"
+                  placeholder="Ví dụ: Nguyễn Văn An"
                   value={custName}
                   onChange={(e) => setCustName(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="input-group">
-                <label className="input-label" htmlFor="custPhone">
-                  Số điện thoại nhận hàng: <span className="req">*</span>
-                </label>
+              <div className="form-group">
+                <label htmlFor="phone-input">Số điện thoại <em>*</em></label>
                 <input
+                  id="phone-input"
                   type="tel"
-                  id="custPhone"
-                  className="input-field"
+                  className="input-text"
                   placeholder="Ví dụ: 0912 345 678"
                   value={custPhone}
-                  onChange={(e) => setCustPhone(e.target.value)}
+                  onChange={(e) => {
+                    setCustPhone(e.target.value);
+                    if (phoneError) setPhoneError("");
+                  }}
                   required
                 />
+                {phoneError && <p className="field-error-msg">{phoneError}</p>}
               </div>
 
-              <div className="input-group">
-                <label className="input-label" htmlFor="custAddress">
-                  Địa chỉ nhận hàng chi tiết: <span className="req">*</span>
-                </label>
-                <textarea
-                  id="custAddress"
-                  className="textarea-field"
-                  rows={2}
-                  placeholder="Số nhà, thôn/ấp/xã, phường/huyện, tỉnh thành"
+              <div className="form-group">
+                <label htmlFor="cust-address">Địa chỉ nhận hàng (Giao tận nơi) <em>*</em></label>
+                <input
+                  id="cust-address"
+                  type="text"
+                  className="input-text"
+                  placeholder="Số nhà, Thôn/Ấp, Xã/Phường, Huyện/Quận, Tỉnh/TP"
                   value={custAddress}
                   onChange={(e) => setCustAddress(e.target.value)}
                   required
                 />
               </div>
 
-              <div className="summary-bill">
-                <div className="bill-row">
-                  <span>Tiền hàng:</span>
-                  <strong>{currentCombo.price.toLocaleString("vi-VN")}đ</strong>
+              <div className="form-group">
+                <label>Chọn gói combo mỏ neo</label>
+                <div className="form-combo-selector">
+                  {Object.values(comboConfig).map((c) => {
+                    const isSelected = selectedCombo === c.id;
+                    return (
+                      <div
+                        key={c.id}
+                        className={`form-combo-option ${isSelected ? "active" : ""}`}
+                        onClick={() => setSelectedCombo(c.id)}
+                      >
+                        <div className="form-combo-left">
+                          <span className="form-combo-radio" />
+                          <div>
+                            <span className="form-combo-title">{c.name}</span>
+                            <span className="form-combo-sub">{c.reason}</span>
+                          </div>
+                        </div>
+                        <div className="form-combo-price">
+                          <strong>{c.price.toLocaleString("vi-VN")}đ</strong>
+                          <small>{c.ship === 0 ? "Freeship" : "+20k ship"}</small>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
-                <div className="bill-row">
+              </div>
+
+              {/* CHỌN SỐ LƯỢNG BỘ */}
+              <div className="quantity-row">
+                <span className="quantity-label">Số lượng bộ:</span>
+                <div className="quantity-controls">
+                  <button
+                    type="button"
+                    className="quantity-btn"
+                    onClick={() => setOrderQuantity((q) => Math.max(1, q - 1))}
+                  >
+                    -
+                  </button>
+                  <span className="quantity-val">{orderQuantity}</span>
+                  <button
+                    type="button"
+                    className="quantity-btn"
+                    onClick={() => setOrderQuantity((q) => Math.min(10, q + 1))}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+
+              {/* TÓM TẮT ĐƠN HÀNG REALTIME */}
+              <div className="order-summary-box">
+                <div className="order-summary-row">
+                  <span>Gói đã chọn:</span>
+                  <strong>{currentCombo.label} (x{orderQuantity} bộ)</strong>
+                </div>
+                <div className="order-summary-row">
+                  <span>Đơn giá ưu đãi:</span>
+                  <span>{(currentCombo.price * orderQuantity).toLocaleString("vi-VN")}đ</span>
+                </div>
+                <div className="order-summary-row">
                   <span>Phí vận chuyển:</span>
-                  <strong style={{ color: "#15803d" }}>{currentCombo.shipText}</strong>
+                  <strong style={{ color: currentCombo.ship === 0 ? "var(--green)" : "var(--ink)" }}>
+                    {currentCombo.ship === 0 ? "Miễn phí giao hàng (0đ)" : "20.000đ"}
+                  </strong>
                 </div>
-                <div className="bill-row final">
-                  <span>TỔNG THANH TOÁN:</span>
-                  <strong>{currentCombo.total.toLocaleString("vi-VN")}đ</strong>
+                <div className="order-summary-row total-row">
+                  <span>Tổng thanh toán khi nhận:</span>
+                  <strong className="order-summary-total-price">
+                    {calculatedTotal.toLocaleString("vi-VN")}đ
+                  </strong>
+                </div>
+              </div>
+
+              {/* GHI CHÚ ĐƠN HÀNG */}
+              <div className="form-group">
+                <label htmlFor="order-note">Ghi chú cho xưởng (nếu có)</label>
+                <input
+                  id="order-note"
+                  type="text"
+                  className="input-text"
+                  placeholder="Ví dụ: Giao giờ hành chính, gọi trước khi giao..."
+                  value={orderNote}
+                  onChange={(e) => setOrderNote(e.target.value)}
+                />
+              </div>
+
+              {/* SUBMIT BUTTON */}
+              <button
+                type="submit"
+                className="btn-submit-order"
+                disabled={isSubmitting}
+              >
+                <span>{isSubmitting ? "Đang gửi đơn..." : "XÁC NHẬN ĐẶT HÀNG NGAY"}</span>
+                <span className="sub-text">Kiểm tra hàng tận tay trước khi thanh toán</span>
+              </button>
+
+              <div className="form-trust-footer">
+                <span>✓ Thanh toán khi nhận</span>
+                <span>✓ Được kiểm tra hàng</span>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        {/* ================= 8. SECTION 7: ĐÁNH GIÁ KHÁCH HÀNG (FACEBOOK STYLE) ================= */}
+        <section className="reviews-section" aria-label="Bình luận và đánh giá từ nhà vườn">
+          <div className="social-comments-wrap">
+            <div className="comments-toolbar">
+              <strong>128 bình luận &amp; phản hồi</strong>
+              <span className="comments-filter">Phù hợp nhất ⌄</span>
+            </div>
+
+            {/* COMMENT 1 */}
+            <article className="comment-item">
+              <div className="comment-avatar" style={{ background: "#0284c7" }}>B</div>
+              <div className="comment-body">
+                <div className="comment-bubble">
+                  <div className="comment-user-row">
+                    <span className="comment-name">Chú Bảy Nông</span>
+                    <span className="comment-badge-verified">✓ Đã mua 20 cái</span>
+                  </div>
+                  <div className="comment-stars">★★★★★</div>
+                  <p className="comment-text">
+                    Mỏ neo rất chắc chắn, thép đúc đặc mạ kẽm cầm nặng tay. Đóng bằng que sắt 14 xuống đất ruộng 1m, kéo thử bằng tời mà giàn chanh dây đứng im phăng phắc. Vừa rồi trận bão giật đùng đùng mà giàn không suy suyển gì.
+                  </p>
+                  <div className="comment-photos">
+                    <img src="/assets/images_neo/hero_neo.jpg" alt="Review 1" loading="lazy" />
+                    <img src="/assets/images_neo/review_2.jpg" alt="Review 2" loading="lazy" />
+                    <img src="/assets/images_neo/review_3.jpg" alt="Review 3" loading="lazy" />
+                  </div>
+                </div>
+                <div className="comment-meta">
+                  <span className="action">Thích</span>
+                  <span className="action">Phản hồi</span>
+                  <span>2 giờ trước</span>
+                  <span className="likes">👍 18</span>
+                </div>
+              </div>
+            </article>
+
+            {/* COMMENT 2 */}
+            <article className="comment-item">
+              <div className="comment-avatar" style={{ background: "#16a34a" }}>L</div>
+              <div className="comment-body">
+                <div className="comment-bubble">
+                  <div className="comment-user-row">
+                    <span className="comment-name">Văn Lâm Farm (Đắk Nông)</span>
+                    <span className="comment-badge-verified">✓ Đã mua 20 cái</span>
+                  </div>
+                  <div className="comment-stars">★★★★★</div>
+                  <p className="comment-text">
+                    Đất đồi dốc bên mình nhiều sỏi, trước đóng cọc gỗ hay bị bật gốc. Đổi sang mỏ neo này đóng 3 phút là xong 1 hố, lẫy neo tự xoay khóa chặt đất. Tiết kiệm công cán đổ bê tông gấp 10 lần. Đã giới thiệu cho mấy anh em cùng xã.
+                  </p>
+                  <div className="comment-photos">
+                    <img src="/assets/images_neo/review_4.jpg" alt="Review 4" loading="lazy" />
+                    <img src="/assets/images_neo/review_5.jpg" alt="Review 5" loading="lazy" />
+                    <img src="/assets/images_neo/problem_sap_gian.jpg" alt="Review 6" loading="lazy" />
+                  </div>
+                </div>
+                <div className="comment-meta">
+                  <span className="action">Thích</span>
+                  <span className="action">Phản hồi</span>
+                  <span>5 giờ trước</span>
+                  <span className="likes">👍 12</span>
+                </div>
+              </div>
+            </article>
+
+            {/* COMMENT 3 */}
+            <article className="comment-item">
+              <div className="comment-avatar" style={{ background: "#d97706" }}>H</div>
+              <div className="comment-body">
+                <div className="comment-bubble">
+                  <div className="comment-user-row">
+                    <span className="comment-name">Hoàng Thợ Mái Che (Bình Phước)</span>
+                    <span className="comment-badge-verified">✓ Đã mua 10 cái</span>
+                  </div>
+                  <div className="comment-stars">★★★★★</div>
+                  <p className="comment-text">
+                    Hàng giao nhanh, đóng gói cẩn thận. Mình làm mái che bạt căng cho nhà kho, dùng neo này siết tăng đơ rất căng và cứng cáp. Khuyên anh em làm giàn hay nhà màng nên dùng loại này.
+                  </p>
+                </div>
+                <div className="comment-meta">
+                  <span className="action">Thích</span>
+                  <span className="action">Phản hồi</span>
+                  <span>1 ngày trước</span>
+                  <span className="likes">👍 7</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        {/* ================= 9. SECTION 8: ỨNG DỤNG THỰC TẾ ================= */}
+        <section className="usage-section" id="usage-guide" aria-label="Ứng dụng thực tế mỏ neo">
+          <span className="section-heading-tag">ĐA NĂNG TOÀN DIỆN</span>
+          <h2 className="section-main-title">Ứng dụng thực tế tại nhà vườn</h2>
+
+          <div className="usage-grid">
+            <div className="usage-card">
+              <img src="/assets/images_neo/problem_sap_gian.jpg" alt="Căng giàn leo nông nghiệp" loading="lazy" />
+              <div className="usage-card-body">
+                <h3>Căng giàn leo nông nghiệp</h3>
+                <p>Giữ cáp thẳng tắp cho giàn chanh dây, nho, dưa lưới, thanh long... chống chùng giàn khi cây ra trĩu quả.</p>
+              </div>
+            </div>
+
+            <div className="usage-card">
+              <img src="/assets/images_neo/cong_dung_nha_mang.jpg" alt="Neo giữ bạt mái che nhà màng" loading="lazy" />
+              <div className="usage-card-body">
+                <h3>Giữ mái che &amp; nhà màng</h3>
+                <p>Ghim chặt bạt che, màng nilon nhà kính chống gió giật lật mái hiên hoặc rách toạc bạt mùa giông lốc.</p>
+              </div>
+            </div>
+
+            <div className="usage-card">
+              <img src="/assets/images_neo/cong_dung_chong_bao.jpg" alt="Chằng chống cây ăn trái mùa bão" loading="lazy" />
+              <div className="usage-card-body">
+                <h3>Chống đổ cây ăn trái mùa mưa bão</h3>
+                <p>Neo giữ thân cây sầu riêng, mít, bưởi chống nghiêng ngả, bật gốc hoặc gãy cành khi gió lớn.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 10. SECTION 9: CÂU HỎI THƯỜNG GẶP (FAQ ACCORDION) ================= */}
+        <section className="faq-section" aria-label="Câu hỏi thường gặp">
+          <span className="section-heading-tag">GIẢI ĐÁP NHANH</span>
+          <h2 className="section-main-title">Câu hỏi thường gặp</h2>
+
+          <div className="faq-list">
+            <div className={`faq-item ${openFaq[0] ? "open" : ""}`}>
+              <div className="faq-q" onClick={() => toggleFaq(0)}>
+                <span>Đất cứng hoặc đất có lẫn sỏi đá có đóng được không?</span>
+                <span className="faq-icon">+</span>
+              </div>
+              {openFaq[0] && (
+                <div className="faq-a">
+                  Hoàn toàn đóng được. Mỏ neo được đúc bằng thép hợp kim vát mũi nhọn chịu lực cao, khi dùng que sắt đóng cọc lực đầm sẽ dẫn thẳng xuyên qua tầng đất sỏi đá mà không bị cong vênh hay móp méo đầu neo.
+                </div>
+              )}
+            </div>
+
+            <div className={`faq-item ${openFaq[1] ? "open" : ""}`}>
+              <div className="faq-q" onClick={() => toggleFaq(1)}>
+                <span>Dùng que sắt cỡ bao nhiêu để đóng cọc mỏ neo?</span>
+                <span className="faq-icon">+</span>
+              </div>
+              {openFaq[1] && (
+                <div className="faq-a">
+                  Bà con chỉ cần chuẩn bị một đoạn que sắt xây dựng phi 12 hoặc phi 14 dài khoảng 1m - 1.2m (rất dễ tìm tại mọi cửa hàng vật liệu xây dựng hoặc que sắt tận dụng ở nhà). Đút que vào lỗ đuôi mỏ neo rồi dùng búa đóng xuống.
+                </div>
+              )}
+            </div>
+
+            <div className={`faq-item ${openFaq[2] ? "open" : ""}`}>
+              <div className="faq-q" onClick={() => toggleFaq(2)}>
+                <span>Khi chuyển vườn có nhổ lên tái sử dụng được không?</span>
+                <span className="faq-icon">+</span>
+              </div>
+              {openFaq[2] && (
+                <div className="faq-a">
+                  Có thể tái sử dụng. Khi muốn dỡ vườn, bà con chỉ cần đào nhẹ một hố đất nhỏ bên cạnh để xoay mỏ neo xuôi lại theo chiều dọc là có thể rút lên dùng lại cho mùa vụ sau, độ bền thép mạ kẽm trên 10 năm không hao mòn.
+                </div>
+              )}
+            </div>
+
+            <div className={`faq-item ${openFaq[3] ? "open" : ""}`}>
+              <div className="faq-q" onClick={() => toggleFaq(3)}>
+                <span>Thời gian giao hàng bao lâu và có được kiểm tra không?</span>
+                <span className="faq-icon">+</span>
+              </div>
+              {openFaq[3] && (
+                <div className="faq-a">
+                  Thời gian giao hàng toàn quốc từ 2 - 4 ngày tùy khu vực. Khi shipper tới giao, bà con được mở bọc kiểm tra hàng tận tay, đúng số lượng và thép đúc dày dặn chuẩn mô tả mới thanh toán tiền cho shipper.
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        {/* ================= 11. FOOTER ================= */}
+        <footer className="footer-clean">
+          <div style={{ fontWeight: 900, fontSize: "14.5px", color: "#ffffff", marginBottom: "4px" }}>
+            VẬT TƯ NÔNG NGHIỆP &amp; CƠ KHÍ CHÍNH HÃNG
+          </div>
+          <p>Chuyên cung cấp mỏ neo đất NEO-10, dây cáp, tăng đơ và phụ kiện giàn leo nhà màng cao cấp</p>
+        </footer>
+
+        {/* ================= 12. STICKY BUY BOTTOM BAR ================= */}
+        <div className={`sticky-buy ${isStickyHidden ? "hidden" : ""}`}>
+          <div className="sticky-info">
+            <span className="sticky-label">{currentCombo.name}</span>
+            <strong className="sticky-price">{currentCombo.price.toLocaleString("vi-VN")}đ</strong>
+          </div>
+          <button
+            type="button"
+            className="sticky-btn"
+            onClick={() => scrollToOrder(selectedCombo)}
+          >
+            Đặt mua ngay
+          </button>
+        </div>
+
+        {/* ================= 13. REALTIME TOAST ================= */}
+        <div className={`order-toast ${showToast ? "show" : ""} ${isStickyHidden ? "sticky-hidden" : ""}`}>
+          <div className="toast-avatar">✓</div>
+          <div className="toast-content">
+            <div className="toast-line-top">
+              <span className="toast-name">{currentToast.cust}</span>
+              <span className="toast-time">{currentToast.time}</span>
+            </div>
+            <div className="toast-line-bottom">Đã đặt {currentToast.item}</div>
+          </div>
+        </div>
+
+        {/* ================= 14. MODAL THÀNH CÔNG ================= */}
+        {completedOrder && (
+          <div className="modal-overlay" role="dialog" aria-modal="true">
+            <div className="modal-card">
+              <div className="modal-icon-success">✓</div>
+              <h3 className="modal-title">ĐẶT HÀNG THÀNH CÔNG!</h3>
+              <p className="modal-desc">
+                Cảm ơn quý khách. Xưởng sẽ liên hệ qua số điện thoại để xác nhận đơn hàng và gửi hàng sớm nhất.
+              </p>
+
+              <div className="modal-bill">
+                <div className="modal-bill-row">
+                  <span>Mã đơn hàng:</span>
+                  <strong style={{ color: "var(--green)" }}>{completedOrder.order_code}</strong>
+                </div>
+                <div className="modal-bill-row">
+                  <span>Khách hàng:</span>
+                  <strong>{completedOrder.customer_name}</strong>
+                </div>
+                <div className="modal-bill-row">
+                  <span>Số điện thoại:</span>
+                  <strong>{completedOrder.customer_phone}</strong>
+                </div>
+                <div className="modal-bill-row">
+                  <span>Địa chỉ:</span>
+                  <strong style={{ maxWidth: "200px", textAlign: "right" }}>
+                    {completedOrder.customer_address}
+                  </strong>
+                </div>
+                <div className="modal-bill-row">
+                  <span>Sản phẩm:</span>
+                  <strong>{completedOrder.combo_name}</strong>
+                </div>
+                <div
+                  className="modal-bill-row"
+                  style={{
+                    borderTop: "1px dashed #cbd5e1",
+                    paddingTop: "6px",
+                    marginTop: "6px",
+                  }}
+                >
+                  <span style={{ fontWeight: 800 }}>Tổng tiền:</span>
+                  <strong style={{ color: "#dc2626", fontSize: "16px" }}>
+                    {Number(completedOrder.total_price).toLocaleString("vi-VN")}đ
+                  </strong>
                 </div>
               </div>
 
               <button
-                type="submit"
-                className="btn-submit"
-                id="btnSubmitOrder"
-                disabled={isSubmitting}
+                type="button"
+                className="btn-modal-close"
+                onClick={closeSuccessModal}
               >
-                <span>{isSubmitting ? "ĐANG XỬ LÝ..." : "👉 XÁC NHẬN ĐẶT HÀNG"}</span>
-                <small>(Kiểm tra hàng đúng chất lượng mới thanh toán tiền)</small>
+                Hoàn tất &amp; Đóng
               </button>
-            </form>
-          </div>
-
-          {/* 9. ĐÁNH GIÁ THỰC TẾ TỪ NHÀ VƯỜN */}
-          <div className="section-wrap">
-            <div className="section-title-box">
-              <span className="section-tag" style={{ background: "#fef3c7", color: "#b45309" }}>NGƯỜI DÙNG THỰC TẾ</span>
-              <h2 className="section-title">HÌNH ẢNH SỬ DỤNG TẠI NHÀ VƯỜN</h2>
-            </div>
-
-            <div className="review-score-banner">
-              <div className="score-num">4.9</div>
-              <div>
-                <div className="stars" style={{ fontSize: "16px", marginBottom: "2px" }}>★★★★★</div>
-                <div style={{ fontSize: "13.5px", color: "#78350f", fontWeight: 800 }}>
-                  Hơn 520 nhà vườn đánh giá rất hài lòng
-                </div>
-              </div>
-            </div>
-
-            {/* Review 1 */}
-            <div className="review-card">
-              <div className="reviewer-head">
-                <div className="reviewer-avatar" style={{ background: "#dcfce7", color: "#15803d" }}>T</div>
-                <div className="reviewer-info">
-                  <div className="reviewer-name-row">
-                    <span className="reviewer-name">Anh Hoàng Văn Thắng</span>
-                    <span className="verified-badge">✓ Đã mua 20 cái</span>
-                  </div>
-                  <div className="reviewer-meta-row">
-                    <span className="stars">★★★★★</span>
-                    <span>•</span>
-                    <span>Đắk Lắk (Vườn chanh leo)</span>
-                  </div>
-                </div>
-              </div>
-              <div className="review-text">
-                Neo này đóng chắc dã man anh em ạ! Vườn chanh leo 2 héc-ta của mình đợt trước mưa gió cứ xô giàn hoài, chuyển qua đóng mỏ neo đất NDM-10 này dây cáp căng cứng ngắc, lấy xe máy kéo thử không hề nhúc nhích. Tiết kiệm biết bao nhiêu tiền thuê thợ đổ bê tông. Đóng gói rất cẩn thận, cho shop 5 sao!
-              </div>
-              <div className="review-photos-grid">
-                <div className="review-thumb"><img src="/assets/images_neo/review_1.jpg" alt="Review 1" /></div>
-                <div className="review-thumb"><img src="/assets/images_neo/review_2.jpg" alt="Review 2" /></div>
-                <div className="review-thumb"><img src="/assets/images_neo/review_3.jpg" alt="Review 3" /></div>
-              </div>
-            </div>
-
-            {/* Review 2 */}
-            <div className="review-card">
-              <div className="reviewer-head">
-                <div className="reviewer-avatar" style={{ background: "#e0f2fe", color: "#0284c7" }}>B</div>
-                <div className="reviewer-info">
-                  <div className="reviewer-name-row">
-                    <span className="reviewer-name">Chú Bảy Nông</span>
-                    <span className="verified-badge">✓ Đã mua 20 cái</span>
-                  </div>
-                  <div className="reviewer-meta-row">
-                    <span className="stars">★★★★★</span>
-                    <span>•</span>
-                    <span>Bình Phước (Vườn sầu riêng)</span>
-                  </div>
-                </div>
-              </div>
-              <div className="review-text">
-                Chằng chống cây sầu riêng mùa mưa bão quá tiện. Lấy cây sắt 12mm đóng sâu 70cm, giật ngược lên là neo tự khóa ngậm đất luôn. Thép đặc nặng tay, mạ nhẵn bóng không lo gỉ sét. Mua combo 20 cái được miễn phí ship giao tận nơi, đóng gói rất cẩn thận, rất hài lòng.
-              </div>
-              <div className="review-photos-grid">
-                <div className="review-thumb"><img src="/assets/images_neo/review_4.jpg" alt="Review 4" /></div>
-                <div className="review-thumb"><img src="/assets/images_neo/review_5.jpg" alt="Review 5" /></div>
-                <div className="review-thumb"><img src="/assets/images_neo/review_6.jpg" alt="Review 6" /></div>
-              </div>
-            </div>
-
-            {/* Review 3 */}
-            <div className="review-card">
-              <div className="reviewer-head">
-                <div className="reviewer-avatar" style={{ background: "#fef3c7", color: "#b45309" }}>L</div>
-                <div className="reviewer-info">
-                  <div className="reviewer-name-row">
-                    <span className="reviewer-name">Văn Lâm Farm</span>
-                    <span className="verified-badge">✓ Đã mua 10 cái</span>
-                  </div>
-                  <div className="reviewer-meta-row">
-                    <span className="stars">★★★★★</span>
-                    <span>•</span>
-                    <span>Lâm Đồng (Nhà màng)</span>
-                  </div>
-                </div>
-              </div>
-              <div className="review-text">
-                Dùng để chằng mép bạt màng nhà kính cực kỳ an tâm. Gió giật mạnh không sợ lật mái. Shop giao hàng nhanh, đúng hẹn, có cho đồng kiểm mở hộp xem mỏ neo trước khi thanh toán. Sẽ tiếp tục ủng hộ thêm cho trại tiếp theo.
-              </div>
             </div>
           </div>
-
-          {/* 10. CÂU HỎI PHỔ BIẾN (FAQ) */}
-          <div className="section-wrap">
-            <div className="section-title-box">
-              <span className="section-tag" style={{ background: "#e0f2fe", color: "#0369a1" }}>GIẢI ĐÁP NHANH</span>
-              <h2 className="section-title">CÂU HỎI THƯỜNG GẶP</h2>
-            </div>
-
-            <div className={`faq-clean-box ${openFaq[0] ? "open" : ""}`}>
-              <div className="faq-q" onClick={() => toggleFaq(0)}>
-                <span>1. Có được kiểm tra hàng trước khi thanh toán không?</span>
-                <span>▼</span>
-              </div>
-              <div className="faq-a">
-                Dạ CÓ! Quý khách hoàn toàn được quyền mở hộp kiểm tra đúng mỏ neo đất NDM-10 bằng thép hợp kim đúc đặc, đúng số lượng đã đặt, ưng ý rồi mới thanh toán tiền cho Shipper.
-              </div>
-            </div>
-
-            <div className={`faq-clean-box ${openFaq[1] ? "open" : ""}`}>
-              <div className="faq-q" onClick={() => toggleFaq(1)}>
-                <span>2. Đóng mỏ neo cần cây sắt phi bao nhiêu?</span>
-                <span>▼</span>
-              </div>
-              <div className="faq-a">
-                Đuôi mỏ neo NDM-10 có lỗ tiếp nhận cây sắt đóng đường kính 10mm - 12mm (loại sắt xây dựng phi 10 hoặc phi 12 rất thông dụng ở các tiệm vật liệu xây dựng với giá chỉ vài ngàn đồng, cắt ngắn 70cm - 1m là dùng đóng neo rất tiện lợi!).
-              </div>
-            </div>
-
-            <div className={`faq-clean-box ${openFaq[2] ? "open" : ""}`}>
-              <div className="faq-q" onClick={() => toggleFaq(2)}>
-                <span>3. Đất cứng, đất sỏi đá có đóng neo được không?</span>
-                <span>▼</span>
-              </div>
-              <div className="faq-a">
-                Mỏ neo NDM-10 làm bằng thép hợp kim độ cứng cao, thiết kế vát đầu nên đóng rất tốt trên các loại đất thịt, đất sét, đất cát, đất đỏ bazan. Đối với đất sỏi đá cứng, bạn chỉ cần tưới 1 ca nước vào vị trí cắm hoặc dùng cây xà beng dùi mồi nhẹ trước rồi đóng neo xuống là cực kỳ chắc chắn.
-              </div>
-            </div>
-
-            <div className={`faq-clean-box ${openFaq[3] ? "open" : ""}`}>
-              <div className="faq-q" onClick={() => toggleFaq(3)}>
-                <span>4. Sau này muốn nhổ lên hoặc chuyển vườn có được không?</span>
-                <span>▼</span>
-              </div>
-              <div className="faq-a">
-                Có thể tháo dỡ bằng cách đào sâu theo thân neo để lấy lại mỏ neo tái sử dụng cho mùa vụ sau, hoặc nếu để cố định thì độ bền của thép hợp kim ngậm trong đất trên 10 năm không mục gỉ.
-              </div>
-            </div>
-          </div>
-
-          {/* FOOTER */}
-          <div className="footer-clean">
-            <div style={{ fontWeight: 900, fontSize: "14.5px", color: "#fff", marginBottom: "4px" }}>
-              VẬT TƯ NÔNG NGHIỆP & CƠ KHÍ CHÍNH HÃNG
-            </div>
-            <p>Chuyên cung cấp mỏ neo đất NDM-10, dây cáp, tăng đơ và phụ kiện giàn leo nhà màng cao cấp</p>
-          </div>
-
-          {/* 11. STICKY BOTTOM BAR */}
-          <div className={`sticky-bar ${isStickyHidden ? "hidden" : ""}`}>
-            <div className="sticky-left">
-              <span className="sticky-badge">⚡ Giá ưu đãi hôm nay</span>
-              <div style={{ display: "flex", alignItems: "baseline", gap: "5px" }}>
-                <span className="sticky-val">{currentCombo.total.toLocaleString("vi-VN")}đ</span>
-                <span className="sticky-combo" style={{ fontSize: "13px", fontWeight: 700, color: "#15803d", whiteSpace: "nowrap" }}>
-                  / {currentCombo.label}
-                </span>
-              </div>
-            </div>
-            <button className="btn-sticky" onClick={() => scrollToOrder(selectedCombo)}>
-              <span>MUA NGAY ⚡</span>
-            </button>
-          </div>
-
-          {/* 12. REALTIME ORDER TOAST */}
-          <div className={`order-toast ${showToast ? "show" : ""}`}>
-            <div className="toast-thumb-wrap">
-              <img src="/assets/images_neo/hero_neo.jpg" alt="Mỏ neo đất" />
-              <span className="toast-check-badge">✓</span>
-            </div>
-            <div className="toast-content">
-              <div className="toast-line-top">
-                <span className="toast-cust-name">{currentToast.cust}</span>
-                <span className="toast-time">{currentToast.time}</span>
-              </div>
-              <div className="toast-line-mid">
-                Vừa đặt: <strong>{currentToast.item}</strong>
-              </div>
-            </div>
-            <div className="toast-close-btn" onClick={(e) => { e.stopPropagation(); setShowToast(false); }}>✕</div>
-          </div>
-
-          {/* 13. MODAL ĐẶT HÀNG THÀNH CÔNG */}
-          {completedOrder && (
-            <div className="modal-wrap show">
-              <div className="modal-content">
-                <div className="modal-icon">✓</div>
-                <h3>ĐẶT HÀNG THÀNH CÔNG!</h3>
-                <p style={{ fontSize: "14.5px", color: "#64748b" }}>Shop sẽ gọi để xác nhận đơn hàng với bạn trước khi giao</p>
-                
-                <div className="modal-bill-info">
-                  <div style={{ marginBottom: "5px" }}>
-                    <strong>Mã đơn:</strong> <span style={{ color: "#15803d", fontWeight: 900 }}>#{completedOrder.order_code}</span>
-                  </div>
-                  <div style={{ marginBottom: "5px" }}>
-                    <strong>Gói:</strong> {completedOrder.combo_name || currentCombo.name}
-                  </div>
-                  <div style={{ marginBottom: "5px" }}>
-                    <strong>Người nhận:</strong> {completedOrder.customer_name} - {completedOrder.customer_phone}
-                  </div>
-                  <div style={{ marginBottom: "5px" }}>
-                    <strong>Địa chỉ:</strong> {completedOrder.customer_address}
-                  </div>
-                  <div style={{ marginTop: "8px", paddingTop: "8px", borderTop: "1.5px dashed #cbd5e1" }}>
-                    <strong>Tổng thanh toán (COD):</strong>{" "}
-                    <span style={{ color: "#b91c1c", fontSize: "18px", fontWeight: 900 }}>
-                      {Number(completedOrder.total_price || currentCombo.total).toLocaleString("vi-VN")}đ
-                    </span>
-                  </div>
-                </div>
-
-                <button className="btn-modal-done" onClick={closeSuccessModal}>
-                  HOÀN TẤT VÀ ĐÓNG
-                </button>
-              </div>
-            </div>
-          )}
-
-        </div>
-      </div>
-    </>
+        )}
+      </main>
+    </div>
   );
 }

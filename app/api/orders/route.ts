@@ -120,12 +120,12 @@ export async function POST(request: NextRequest) {
       customer_phone,
       customer_address,
       combo_id,
-      combo_name: combo_name || body.combo_name || "Mỏ Neo Đất NDM-10",
+      combo_name: combo_name || body.combo_name || "Mỏ Neo Đất NEO-10",
       color: body.color || "Thép Mạ Kẽm",
       product_name:
         body.product_name ||
         (combo_id >= 5
-          ? "Mỏ Neo Đất NDM-10 Chịu Tải 450kg"
+          ? "Mỏ Neo Đất NEO-10 Chịu Tải Tới 450kg"
           : "Đèn Xe Đạp Có Còi Pin Sạc USB LED T6 Chống Nước IP44"),
       item_price,
       shipping_fee,
