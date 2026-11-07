@@ -94,6 +94,26 @@ export async function POST(request: NextRequest) {
       if (!total_price) total_price = cfg.total;
     }
 
+    // Phân tích nguồn đơn: Nhận diện Facebook Ads qua fbclid hoặc cookie _fbc
+    const fbclid = (body.fbclid || "").trim();
+    const fbc = (body.fbc || request.cookies.get("_fbc")?.value || "").trim();
+    const isFbAds = Boolean(fbclid || (fbc && fbc.startsWith("fb.")));
+
+    const rawNote = (body.note || "").trim();
+    let sourcePrefix = "";
+    if (isFbAds) {
+      const shortId = fbclid
+        ? fbclid.length > 25
+          ? `${fbclid.substring(0, 22)}...`
+          : fbclid
+        : "Có cookie _fbc";
+      sourcePrefix = `[Nguồn: 🟢 Facebook Ads | ${shortId}]`;
+    } else {
+      sourcePrefix = `[Nguồn: ⚠️ Vào trực tiếp (Không có fbclid - Cần gọi chốt)]`;
+    }
+
+    const finalNote = rawNote ? `${sourcePrefix} ${rawNote}` : sourcePrefix;
+
     const order = await saveOrder({
       order_code: body.order_code,
       customer_name,
@@ -111,7 +131,9 @@ export async function POST(request: NextRequest) {
       shipping_fee,
       total_price,
       status: "pending",
-      note: (body.note || "").trim(),
+      note: finalNote,
+      traffic_source: isFbAds ? "fb_ads" : "direct",
+      fbclid: fbclid || (fbc.startsWith("fb.") ? fbc : undefined),
     });
 
     // 1. Gửi thông báo Telegram (chạy nền, không làm chậm phản hồi của khách hàng)
@@ -131,7 +153,6 @@ export async function POST(request: NextRequest) {
     const userAgent = request.headers.get("user-agent");
     const referer = request.headers.get("referer");
     const fbp = body.fbp || request.cookies.get("_fbp")?.value;
-    const fbc = body.fbc || request.cookies.get("_fbc")?.value;
     const testEventCode = body.test_event_code || request.headers.get("x-meta-test-code");
 
     sendMetaCapiPurchase(order, {

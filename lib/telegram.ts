@@ -119,8 +119,18 @@ export async function sendOrderTelegramAlert(
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://www.vicuatien.food";
 
+  const isFbAds =
+    order.traffic_source === "fb_ads" ||
+    (order.note && order.note.includes("Facebook Ads")) ||
+    false;
+
+  const sourceText = isFbAds
+    ? `🎯 <b>Nguồn đơn:</b> 🟢 <b>Facebook Ads</b> <i>(Khách thật từ Ads có fbclid)</i>`
+    : `🎯 <b>Nguồn đơn:</b> ⚠️ <b>Vào trực tiếp</b> <i>(Không có fbclid - Cần gọi chốt)</i>`;
+
   const message = `🚨 <b>CÓ ĐƠN HÀNG MỚI!</b> [#${order.order_code}]
 ━━━━━━━━━━━━━━━━━━━━
+${sourceText}
 👤 <b>Khách hàng:</b> <b>${escapeHtml(order.customer_name)}</b>
 📞 <b>Số điện thoại:</b> <code>${escapeHtml(order.customer_phone)}</code>
 📍 <b>Địa chỉ:</b> ${escapeHtml(order.customer_address)}

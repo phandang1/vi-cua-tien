@@ -193,6 +193,19 @@ export default function BikeLightLanding() {
     };
   }, []);
 
+  // Lưu vết fbclid từ Facebook Ads vào sessionStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const fbclidParam = urlParams.get("fbclid");
+        if (fbclidParam) {
+          sessionStorage.setItem("meta_fbclid", fbclidParam);
+        }
+      } catch {}
+    }
+  }, []);
+
   // 3. Form Order state
   const [selectedCombo, setSelectedCombo] = useState<number>(1);
   const [custName, setCustName] = useState("");
@@ -244,6 +257,15 @@ export default function BikeLightLanding() {
     const fbp = fbpMatch ? decodeURIComponent(fbpMatch[2]) : undefined;
     const fbc = fbcMatch ? decodeURIComponent(fbcMatch[2]) : undefined;
 
+    // Lấy fbclid từ URL hoặc sessionStorage để nhận diện đơn hàng từ Facebook Ads
+    let fbclid = "";
+    if (typeof window !== "undefined") {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        fbclid = urlParams.get("fbclid") || sessionStorage.getItem("meta_fbclid") || "";
+      } catch {}
+    }
+
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -261,6 +283,7 @@ export default function BikeLightLanding() {
           total_price: currentCombo.total,
           fbp,
           fbc,
+          fbclid: fbclid || undefined,
         }),
       });
 

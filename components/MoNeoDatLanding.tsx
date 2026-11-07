@@ -214,6 +214,19 @@ export default function MoNeoDatLanding() {
     };
   }, []);
 
+  // Lưu vết fbclid từ Facebook Ads vào sessionStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        const fbclidParam = urlParams.get("fbclid");
+        if (fbclidParam) {
+          sessionStorage.setItem("meta_fbclid", fbclidParam);
+        }
+      } catch {}
+    }
+  }, []);
+
   // 5. FAQ Accordion
   const [openFaq, setOpenFaq] = useState<Record<number, boolean>>({ 0: true });
   const toggleFaq = (idx: number) => {
@@ -270,6 +283,15 @@ export default function MoNeoDatLanding() {
     const fbp = fbpMatch ? decodeURIComponent(fbpMatch[2]) : undefined;
     const fbc = fbcMatch ? decodeURIComponent(fbcMatch[2]) : undefined;
 
+    // Lấy fbclid từ URL hoặc sessionStorage để nhận diện đơn hàng từ Facebook Ads
+    let fbclid = "";
+    if (typeof window !== "undefined") {
+      try {
+        const urlParams = new URLSearchParams(window.location.search);
+        fbclid = urlParams.get("fbclid") || sessionStorage.getItem("meta_fbclid") || "";
+      } catch {}
+    }
+
     try {
       const res = await fetch("/api/orders", {
         method: "POST",
@@ -289,6 +311,7 @@ export default function MoNeoDatLanding() {
           note: "",
           fbp,
           fbc,
+          fbclid: fbclid || undefined,
         }),
       });
 

@@ -323,6 +323,11 @@ Tiền thu hộ COD: ${(order.total_price || 0).toLocaleString("vi-VN")}đ`;
                       })
                     : "";
 
+                  const isFromFbAds =
+                    order.traffic_source === "fb_ads" ||
+                    (order.note && order.note.includes("Facebook Ads")) ||
+                    Boolean(order.fbclid);
+
                   return (
                     <tr
                       key={order.id}
@@ -337,6 +342,20 @@ Tiền thu hộ COD: ${(order.total_price || 0).toLocaleString("vi-VN")}đ`;
                           <Clock className="w-3 h-3" />
                           <span>{dateFormatted}</span>
                         </div>
+                        {isFromFbAds ? (
+                          <div className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                            <span>🟢 Facebook Ads</span>
+                          </div>
+                        ) : (
+                          <div
+                            className="mt-1.5 inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200"
+                            title="Đơn không có fbclid, có thể là đơn ảo hoặc khách vào trực tiếp"
+                          >
+                            <span>⚠️</span>
+                            <span>Vào trực tiếp</span>
+                          </div>
+                        )}
                       </td>
 
                       {/* Khách hàng */}

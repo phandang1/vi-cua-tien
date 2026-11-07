@@ -576,6 +576,8 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
     total_price: Number(orderData.total_price) || 119000,
     status: orderData.status || "pending",
     note: orderData.note || "",
+    traffic_source: orderData.traffic_source,
+    fbclid: orderData.fbclid,
     created_at: orderData.created_at || new Date().toISOString(),
     updated_at: new Date().toISOString(),
   };
@@ -593,13 +595,31 @@ export async function saveOrder(orderData: Partial<Order>): Promise<Order> {
         delete insertPayload.id;
       }
 
-      const { data, error } = await admin
+      let { data, error } = await admin
         .from("orders")
         .insert(insertPayload)
         .select()
         .single();
+
+      // Nếu Supabase báo thiếu cột traffic_source hoặc fbclid, loại bỏ và thử lại
+      if (error && (error.code === "PGRST204" || error.message?.includes("column"))) {
+        delete insertPayload.traffic_source;
+        delete insertPayload.fbclid;
+        const retry = await admin
+          .from("orders")
+          .insert(insertPayload)
+          .select()
+          .single();
+        data = retry.data;
+        error = retry.error;
+      }
+
       if (!error && data) {
-        return data as Order;
+        return {
+          ...data,
+          traffic_source: newOrder.traffic_source,
+          fbclid: newOrder.fbclid,
+        } as Order;
       }
       if (error && error.code !== "PGRST205") {
         console.warn("Supabase orders table error:", error);

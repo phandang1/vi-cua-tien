@@ -64,6 +64,8 @@ export interface Order {
   total_price: number;
   status: "pending" | "confirmed" | "shipping" | "delivered" | "cancelled";
   note?: string;
+  traffic_source?: "fb_ads" | "direct" | string;
+  fbclid?: string;
   created_at: string;
   updated_at?: string;
 }
